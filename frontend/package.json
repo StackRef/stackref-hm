@@ -94,7 +94,7 @@
     "cross-env": "^7.0.3",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.11",
-    "dompurify": "^3.1.5",
+    "dompurify": "^3.4.11",
     "filepond": "^4.31.1",
     "filepond-plugin-file-encode": "^2.1.14",
     "filepond-plugin-file-validate-size": "^2.2.8",
