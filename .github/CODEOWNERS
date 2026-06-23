@@ -3,9 +3,6 @@
 # Every PR that touches matching paths automatically requests a review from the
 # owner(s) below. Combined with the branch-protection rule "Require review from
 # Code Owners", this guarantees you review every change before it can merge.
-#
-# TODO: replace @StackRef/maintainers with your GitHub username (e.g. @kmcduffee)
-#       or a GitHub team you own. A non-existent user/team will NOT enforce review.
 
 # Default owner for everything in the repo
-*       @StackRef/maintainers
+*       @gudlyf
