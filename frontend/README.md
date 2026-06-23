@@ -65,6 +65,36 @@ src/
 └── routes.js      route table
 ```
 
+## Dependency security
+
+The runtime/production dependencies are kept patched, and `package.json` includes an
+`overrides` block that force-patches several vulnerable transitive packages
+(`nth-check`, `postcss`, `serialize-javascript`) pinned by the toolchain.
+
+Any **remaining** Dependabot/`npm audit` alerts come from **`react-scripts`
+(Create React App)**, which is unmaintained and pins old build/test-time
+dependencies (`jest`, `svgo`, `webpack-dev-server`, `workbox`, etc.). These run only
+during build/test and **are not shipped in the browser bundle**, so they carry no
+production-runtime risk. Several have no patched release that is compatible with CRA,
+so they cannot be resolved without changing the toolchain.
+
+Two durable options:
+
+1. **Migrate off CRA to [Vite](https://vitejs.dev/).** This removes `react-scripts`
+   and its entire vulnerable transitive tree, and is the modern standard. Recommended.
+2. **Dismiss the residual alerts** in Dependabot as *"vulnerable code is not actually
+   used"* (build-time-only dev dependencies), documenting why.
+
+After changing dependencies, always verify the app still builds and runs:
+
+```bash
+npm install
+npm run build --env=<env>
+npm start
+```
+
+> CRA 5 builds best on **Node 18**. Newer Node versions may require workarounds.
+
 ## Notes
 
 - A valid **MUI X Pro** license is required for the Pro date/range pickers used in
