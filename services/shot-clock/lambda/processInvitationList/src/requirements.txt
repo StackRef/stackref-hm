@@ -1,0 +1,12 @@
+# change this text to trigger re-pull of packages
+auth0-python~=3.24.0
+botocore~=1.29.37
+boto3~=1.26.37
+cryptography~=39.0.1
+elasticache-auto-discovery~=1.0.0
+numpy~=1.24.0
+psycopg~=3.1.7
+pydash~=5.1.2
+PyJWT~=2.6.0
+PyJWT[crypto]~=2.6.0
+pymemcache~=4.0.0

@@ -1,0 +1,69 @@
+# ---- Secrets & local config (NEVER commit) ----
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.tfvars
+!*.tfvars.example
+terraform.tfvars
+*.pem
+*.key
+*.p12
+credentials
+.npmrc
+
+# ---- Terraform ----
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ---- Node / frontend ----
+node_modules/
+build/
+dist/
+coverage/
+.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+sbom.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ---- Lambda build artifacts ----
+payload/
+payload.zip
+*.zip
+package/
+
+# ---- AI / vector store ----
+.chroma/
+
+# ---- Sanitization (never publish the real target list) ----
+scripts/scrub_targets.py
+
+# ---- Tooling / scratch ----
+.infracost/
+.dccache
+.snyk
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

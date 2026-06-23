@@ -1,0 +1,5 @@
+.terraform.lock.hcl
+.terraform
+*.swp
+terraform.secret.tfvars*
+!terraform.secret.tfvars.example

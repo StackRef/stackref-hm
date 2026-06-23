@@ -1,0 +1,71 @@
+get:
+  summary: Retrieve feedback items for an Event and/or Team
+  tags:
+    - teamEventFeedback
+  description: Returns one or more Team/Event feedback items
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: team_uuid
+      in: query
+      description: |
+        Team UUID
+      required: false
+      schema:
+        type: string
+        format: uuid
+    - name: event_uuid
+      in: query
+      description: |
+        Event UUID
+      required: false
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                team_event_feedback_uuid:
+                  type: string
+                  format: uuid
+                participant_uuid:
+                  type: string
+                  format: uuid
+                event_uuid:
+                  type: string
+                  format: uuid
+                team_uuid:
+                  type: string
+                  format: uuid
+                feedback_text:
+                  type: string
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /teamEventFeedbackRead

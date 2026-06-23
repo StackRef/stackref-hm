@@ -1,0 +1,52 @@
+post:
+  summary: Process a webhook call from Stripe
+  tags:
+    - stackCash
+  description: Used for processing a purchase request
+  security:
+    - stripe-signature: []
+  requestBody:
+    description: Payment details payload
+    required: true
+    content:
+      application/json:
+        schema:
+          type: string
+          description: JSON string payload from Stripe
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: number
+                format: int4
+                default: 200
+              stripe_intent_id:
+                type: string
+              organization_uuid:
+                type: string
+                format: uuid
+              transaction_value:
+                type: number
+                format: double
+              stackcash_value:
+                type: number
+                format: double
+                  
+    '500':
+      description: Error
+    default:
+      description: Default response for POST /stackCashPurchaseStripe

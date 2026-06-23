@@ -1,0 +1,73 @@
+resource "aws_iam_role" "snyk_readonly" {
+  name               = "ReadOnlyForSnyk"
+  description        = "Provides Snyk with read-only access to Amazon resources"
+  assume_role_policy = data.aws_iam_policy_document.snyk_readonly.json
+}
+
+data "aws_iam_policy_document" "snyk_readonly" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type = "AWS"
+
+      identifiers = [
+        "arn:aws:iam::000000000000:user/ecr-integration-user",
+        "arn:aws:iam::000000000000:root"
+      ]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "sts:ExternalId"
+      values   = [var.snyk_external_id]
+    }
+  }
+}
+
+resource "aws_iam_policy" "snyk_readonly" {
+  name   = "ReadOnlyForSnyk"
+  path   = "/external_integrations/"
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SnykAllowPull",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetLifecyclePolicyPreview",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "ecr:DescribeImages",
+        "ecr:GetAuthorizationToken",
+        "ecr:DescribeRepositories",
+        "ecr:ListTagsForResource",
+        "ecr:ListImages",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetRepositoryPolicy",
+        "ecr:GetLifecyclePolicy"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SnykAllowReadLamda",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:ListFunctions",
+        "lambda:GetFunction",
+        "lambda:ListAliases",
+        "lambda:GetAccountSettings"
+      ],
+    "Resource": "*"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "snyk_readonly" {
+  role       = aws_iam_role.snyk_readonly.name
+  policy_arn = aws_iam_policy.snyk_readonly.arn
+}

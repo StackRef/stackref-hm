@@ -1,0 +1,55 @@
+get:
+  summary: Retrieve details of the StackRef Marketplace
+  tags:
+    - marketplace
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                marketplace_item_id:
+                  type: number
+                  format: int32
+                marketplace_item_name:
+                  type: string
+                marketplace_item_description:
+                  type: string
+                marketplace_item_type_id:
+                  type: number
+                  format: int32
+                marketplace_item_type_name:
+                  type: string
+                stackcash_cost:
+                  type: number
+                  format: double
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /marketplaceRead

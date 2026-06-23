@@ -1,0 +1,72 @@
+post:
+  summary: Create a new Event on the platform
+  tags:
+    - event
+  description: Creates a new Event when supplied with its details. Returns `event_uuid`.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Event creation information
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: create
+              example: create
+            event:
+              type: object
+              properties:
+                organization_uuid:
+                  type: string
+                  format: uuid
+                ts_event_start:
+                  type: string
+                  example: "2022-01-01 00:00:00.000"
+                ts_event_end:
+                  type: string
+                  example: "2022-01-08 00:00:00.000"
+                event_judging_minutes:
+                  type: number
+                cloud_accounts_enabled:
+                  type: boolean
+                add_all_users:
+                  type: boolean
+                event_type_id:
+                  type: number
+                  example: 1
+                event_team_form_mode_id:
+                  type: number
+                  example: 1
+                event_details:
+                  type: object
+                  properties:
+                    event_name:
+                      type: string
+                    event_summary:
+                      type: string
+                    event_description:
+                      type: string
+                    event_max_team_size:
+                      type: number
+                      example: 2
+                entity_asset:
+                  type: string
+                  example: "{\"status_code\":200,\"asset_entity_uuid\":\"c2b55dce-c710-4d8e-9ab5-cec08250a5bc\",\"asset_uuid\":\"6ee33d65-6d1f-4bc5-8ba7-61b70cf6aab2\"}"
+  responses:
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /eventCreate

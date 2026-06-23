@@ -1,0 +1,4 @@
+aws_region        = "us-east-1"
+sr_umpire_version = "1.0.0"
+environment       = "dev"
+sr_logging_level  = "DEBUG"

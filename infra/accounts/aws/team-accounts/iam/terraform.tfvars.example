@@ -1,0 +1,1 @@
+tator_event_bridge_lambda_role_arn = "arn:aws:iam::000000000000:role/tator_event_bridge_lambda"

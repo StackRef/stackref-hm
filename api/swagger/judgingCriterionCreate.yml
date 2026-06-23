@@ -1,0 +1,54 @@
+post:
+  summary: Create a new judging criterion on the platform
+  tags:
+    - judgingCriterion
+  description: Creates a new judging criterion item when supplied with its details. Returns `judging_criterion_uuid`.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Criterion creation information
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: create
+            criterion:
+              type: object
+              properties:
+                organization_uuid:
+                  type: string
+                  format: uuid
+                event_uuid:
+                  type: string
+                  format: uuid
+                criterion_weight:
+                  type: number
+                category_id:
+                  type: number
+                criterion_details:
+                  type: object
+                  properties:
+                    criterion_name:
+                      type: string
+                    criterion_summary:
+                      type: string
+                    criterion_description:
+                      type: string
+  responses:
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /judgingCriterionCreate

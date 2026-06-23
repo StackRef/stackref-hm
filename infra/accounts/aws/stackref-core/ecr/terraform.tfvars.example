@@ -1,0 +1,59 @@
+stackref_repos = {
+  "coach" = {
+    name      = "coach"
+    namespace = "stackref"
+    mutable   = true
+  },
+  "debian" = {
+    name      = "debian"
+    namespace = "community"
+    mutable   = true
+  },
+  "docker" = {
+    name      = "docker"
+    namespace = "community"
+    mutable   = true
+  },
+  "nginx" = {
+    name      = "nginx"
+    namespace = "community"
+    mutable   = true
+  },
+  "python" = {
+    name      = "python"
+    namespace = "community"
+    mutable   = true
+  },
+  "cleanup_crew" = {
+    name      = "cleanup_crew"
+    namespace = "stackref"
+    mutable   = true
+  },
+  "codeclimate/codeclimate" = {
+    name      = "codeclimate/codeclimate"
+    namespace = "community"
+    mutable   = true
+  },
+  "codeclimate/codeclimate-structure" = {
+    name      = "codeclimate/codeclimate-structure"
+    namespace = "community"
+    mutable   = true
+  },
+  "codeclimate/codeclimate-duplication" = {
+    name      = "codeclimate/codeclimate-duplication"
+    namespace = "community"
+    mutable   = true
+  },
+  "infracost" = {
+    name      = "infracost"
+    namespace = "community"
+    mutable   = true
+  },
+  "cossell" = {
+    name      = "cossell"
+    namespace = "stackref"
+    mutable   = true
+  }
+}
+
+environment = "dev"

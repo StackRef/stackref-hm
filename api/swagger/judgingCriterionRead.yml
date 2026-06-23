@@ -1,0 +1,115 @@
+get:
+  summary: Retrieve judging criterion details of Organization or Event
+  tags:
+    - judgingCriterion
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: organization_uuid
+      in: query
+      description: |
+        Organization UUID
+
+        Use when requesting what judging criterion are available to be assigned to Events
+      required: false
+      schema:
+        type: string
+        format: uuid
+    - name: event_uuid
+      in: query
+      description: |
+        Event UUID
+
+        Use when requesting what judging criterion are assigned to an Event
+      required: false
+      schema:
+        type: string
+        format: uuid
+    - name: judging_criterion_uuid
+      in: query
+      description: |
+        Judging Criterion UUID
+
+        Use when requesting a single Judging Criterion
+      required: false
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                judging_criterion_uuid:
+                  type: string
+                  format: uuid
+                event_uuid:
+                  type: string
+                  format: uuid
+                criterion_weight:
+                  type: number
+                judging_criterion_status_id:
+                  type: number
+                judging_criterion_status_name:
+                  type: string
+                judging_criterion_category_id:
+                  type: number
+                judging_criterion_category_name:
+                  type: string
+                judging_criterion_category_icon:
+                  type: string
+                criterion_details:
+                  type: object
+                  properties:
+                    criterion_name:
+                      type: string
+                    criterion_summary:
+                      type: string
+                    criterion_description:
+                      type: string
+                judging_criterion_statuses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      judging_criterion_status_id:
+                        type: number
+                      judging_criterion_status_name:
+                        type: string
+                judging_criterion_categories:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      judging_criterion_category_id:
+                        type: number
+                      judging_criterion_category_name:
+                        type: string
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /judgingCriterionRead

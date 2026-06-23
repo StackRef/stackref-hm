@@ -1,0 +1,33 @@
+get:
+  summary: Simple UUID generator for use in other calls
+  tags:
+    - other
+  description: >
+    Use this call to generate a unique UUID to be used in playbook creation, etc.
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                format: uuid
+      links:
+        GeneratedUUID:
+          parameters:
+            description: Generated UUID
+            uuid: $response.body#/uuid
+    default:
+      description: Default response for GET /generateUUID

@@ -1,0 +1,95 @@
+post:
+  tags:
+    - user
+  security:
+    - bearerAuth: []
+  requestBody:
+    description: Only a portion of what Auth0 sends to the API, but all we care about
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            event:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    app_metadata:
+                      type: object
+                      properties:
+                        sr-axios-error:
+                          type: string
+                    created_at:
+                      type: string
+                      format: date-time
+                    email_verified:
+                      type: boolean
+                    email:
+                      type: string
+                    family_name:
+                      type: string
+                    given_name:
+                      type: string
+                    identities:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          connection:
+                            type: string
+                          isSocial:
+                            type: boolean
+                          provider:
+                            type: string
+                          userId:
+                            type: string
+                          user_id:
+                            type: string
+                    name:
+                      type: string
+                    nickname:
+                      type: string
+                    picture:
+                      type: string
+                      format: uri
+                      example: https://path_to_image.png
+                    updated_at:
+                      type: string
+                      format: date-time
+                    user_id:
+                      type: string
+                    user_metadata:
+                      type: object
+                      properties: {}
+                    multifactor:
+                      type: array
+                      items: {}
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                user_uuid:
+                  type: string
+                  format: uuid
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /userRegistration

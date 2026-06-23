@@ -1,0 +1,59 @@
+get:
+  summary: Retrieve Event Team analysis items
+  tags:
+    - teamAnalysis
+  description: Returns one or more team_analysis_results items
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: team_uuid
+      in: query
+      description: |
+        Team UUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                team_analysis_result_uuid:
+                  type: string
+                  format: uuid
+                team_analysis_result_source:
+                  type: string
+                ts_created:
+                  type: string
+                  format: date-time
+                team_analysis_result_json:
+                  type: object
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /teamAnalysisRead

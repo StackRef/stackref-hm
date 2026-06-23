@@ -1,0 +1,56 @@
+get:
+  summary: Retrieve details of one or many Banks
+  tags:
+    - stackCash
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: entity_uuid
+      in: query
+      description: |
+        Entity UUID
+
+        For now this is required and must match the UUID of an Organization, Event, or Team.
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                entity_uuid:
+                  type: string
+                  format: uuid
+                balance_value:
+                  type: number
+                  format: double
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /coinBankRead

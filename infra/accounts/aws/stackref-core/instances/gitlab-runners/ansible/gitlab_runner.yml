@@ -1,0 +1,48 @@
+- hosts: all
+  remote_user: ec2-user
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+    - name: Download latest GitLab Runner RPM repo script
+      ansible.builtin.get_url:
+        url: https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh
+        dest: /tmp/script.rpm.sh
+
+    - name: Run GitLab runner RPM script
+      ansible.builtin.shell:
+        cmd: cat /tmp/script.rpm.sh | sh -s -- -y
+
+    - name: Install GitLab runner package
+      ansible.builtin.yum:
+        name: gitlab-runner
+        state: present
+
+    - name: Start and enable gitlab-runner
+      ansible.builtin.systemd:
+        name: gitlab-runner
+        state: started
+        enabled: yes
+
+    - name: Add gitlab-runner user to docker group
+      ansible.builtin.user:
+        name: gitlab-runner
+        groups: docker
+        append: yes
+
+    - name: Create docker configuration directory for gitlab-runner user
+      ansible.builtin.file:
+        path: /home/gitlab-runner/.docker
+        state: directory
+        owner: gitlab-runner
+        group: gitlab-runner
+        mode: 0750
+
+    - name: Install docker config file for gitlab-runner user
+      ansible.builtin.copy:
+        src: files/docker/config.json
+        dest: /home/gitlab-runner/.docker/config.json
+        owner: gitlab-runner
+        group: gitlab-runner
+        mode: 0600

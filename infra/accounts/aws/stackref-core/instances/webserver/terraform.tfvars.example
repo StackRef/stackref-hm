@@ -1,0 +1,2 @@
+environment  = "dev"
+ec2_key_name = "stackref_bastion"

@@ -1,0 +1,213 @@
+post:
+  summary: Update an Event Team on the platform
+  tags:
+    - team
+  description: Updates an Event Team when supplied with its details. Returns `team_uuid`.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Team update information
+    required: true
+    content:
+      application/json:
+        schema:
+          oneOf:
+            - $ref: '#/components/schemas/teamUpdate_updateTeamPayload'
+            - $ref: '#/components/schemas/teamUpdate_deleteTeamPayload'
+            - $ref: '#/components/schemas/teamUpdate_addExternalLinkPayload'
+            - $ref: '#/components/schemas/teamUpdate_deleteExternalLinkPayload'
+            - $ref: '#/components/schemas/teamUpdate_updateExternalLinkPayload'
+        examples:
+          updateTeam:
+            summary: Update Team
+            value:
+              action: update
+              team:
+                team_uuid: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                team_details:
+                  team_name: string
+                  team_description: string
+          deleteTeam:
+            summary: Delete Team
+            value:
+              action: delete
+              team:
+                team_uuid: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          addExternalLink:
+            summary: Add External Link
+            value:
+              action: add_external_link
+              team:
+                team_uuid: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                external_link:
+                  external_link_type_id: 1
+                  external_link_name: string
+                  external_link_url: string
+                  team_private: true
+          deleteExternalLink:
+            summary: Delete External Link
+            value:
+              action: delete_external_link
+              team:
+                team_uuid: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                external_link:
+                  external_link_uuid: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          updateExternalLink:
+            summary: Update External Link
+            value:
+              action: update_external_link
+              team:
+                team_uuid: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                external_link:
+                  external_link_uuid: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                  external_link_type_id: 1
+                  external_link_name: string
+                  external_link_url: string
+                  team_private: true
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              team_uuid:
+                type: string
+                format: uuid
+              team_external_link_uuid:
+                type: string
+                format: uuid
+              updated:
+                type: boolean
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /teamUpdate
+components:
+  schemas:
+    teamUpdate_updateTeamPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: update
+          example: update
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            team_details:
+              type: object
+              properties:
+                team_name:
+                  type: string
+                team_description:
+                  type: string
+    teamUpdate_deleteTeamPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: delete
+          example: delete
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+    teamUpdate_addExternalLinkPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: add_external_link
+          example: add_external_link
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            external_link:
+              type: object
+              properties:
+                external_link_type_id:
+                  type: number
+                  format: int32
+                external_link_name:
+                  type: string
+                external_link_url:
+                  type: string
+                  format: uri
+                team_private:
+                  type: boolean
+    teamUpdate_deleteExternalLinkPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: delete_external_link
+          example: delete_external_link
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            external_link:
+              type: object
+              properties:
+                external_link_uuid:
+                  type: string
+                  format: uuid
+    teamUpdate_updateExternalLinkPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: update_external_link
+          example: update_external_link
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            external_link:
+              type: object
+              properties:
+                external_link_uuid:
+                  type: string
+                  format: uuid
+                external_link_type_id:
+                  type: number
+                  format: int32
+                external_link_name:
+                  type: string
+                external_link_url:
+                  type: string
+                  format: uri
+                team_private:
+                  type: boolean

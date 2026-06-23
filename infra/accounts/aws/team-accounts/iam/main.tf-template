@@ -1,0 +1,47 @@
+provider "aws" {
+  region  = var.aws_region
+
+  assume_role {
+    role_arn = "arn:aws:iam::${var.team_account_number}:role/OrganizationAccountAccessRole"
+  }
+
+  default_tags {
+    tags = {
+      terraform_managed = "true"
+      "stackref:admin"  = "true"
+    }
+  }
+}
+
+terraform {
+  backend "s3" {
+    region  = "us-east-1"
+    bucket  = "stackref-acme-terraform-state-core"
+    key     = "accounts/stackref-teams/%TEAM_ACCOUNT_NUMBER%/iam/terraform.tfstate"
+  }
+}
+
+data "aws_caller_identity" "current" {
+}
+
+data "terraform_remote_state" "organization" {
+  backend = "s3"
+
+  config = {
+    region  = "us-east-1"
+    bucket  = "stackref-acme-terraform-state-core"
+    key     = "organization/terraform.tfstate"
+  }
+}
+
+# Perform the following to get the list of accounts to loop through:
+#   terraform apply -target null_resource.team_account_ids -auto-approve
+#   terraform output -json team_account_ids | jq -r '.[]' > team_account_ids.txt
+# Alternatively, for the 2nd command, to apply directly/immediately:
+#   for account_id in $(terraform output -json team_account_ids | jq -r '.[]'); do terraform apply -var team_account_number=${account_id} -auto-approve; done
+
+resource "null_resource" "team_account_ids" {
+  triggers = {
+    team_account_ids = length(data.terraform_remote_state.organization.outputs.team_account_ids)
+  }
+}

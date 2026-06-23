@@ -1,0 +1,45 @@
+resource "aws_iam_user" "gitlab_shared_runner" {
+  name = "gitlab_shared_runner"
+  path = "/external_integrations/"
+}
+
+resource "aws_iam_user_policy" "gitlab_shared_runner" {
+  name = "StartStopGitLabRunner"
+  user = aws_iam_user.gitlab_shared_runner.name
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Sid": "AllowSharedGitLabRunnerToStartOurGitLabRunner",
+          "Effect": "Allow",
+          "Action": [
+              "ec2:StartInstances",
+              "ec2:StopInstances"
+          ],
+          "Resource": "arn:aws:ec2:*:*:instance/*",
+          "Condition": {
+              "StringEquals": {
+                  "aws:ResourceTag/application": "gitlab-runner"
+              }
+          }
+      },
+      {
+          "Effect": "Allow",
+          "Action": "ec2:DescribeInstances",
+          "Resource": "*"
+      },
+      {
+        "Sid": "AllowForInfracost",
+        "Action": [
+          "cloudwatch:GetMetricStatistics",
+          "dynamodb:DescribeTable"
+        ],
+        "Effect": "Allow",
+        "Resource": "*"
+      }
+  ]
+}
+POLICY
+}

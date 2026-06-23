@@ -1,0 +1,15 @@
+version: 0.1
+
+projects:
+  - path: ./budgets
+  - path: ./cloudtrail
+  - path: ./ecr
+  - path: ./external_integrations
+  - path: ./instances/gitlab-runners
+  - path: ./instances/webserver
+  - path: ./lifecycle_policies
+  - path: ./primary_frontend
+  - path: ./route53
+  - path: ./ses
+  - path: ./state_bucket
+  - path: ./team_management

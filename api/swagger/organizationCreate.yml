@@ -1,0 +1,74 @@
+post:
+  summary: Create a new Organization on the platform
+  tags:
+    - organization
+  description: Creates a new Organization when supplied with its details. Returns `organization_uuid`.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Organization creation information
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: create
+              example: create
+            user_uuid:
+              type: string
+              format: uuid
+            organization:
+              type: object
+              properties:
+                organization_name:
+                  type: string
+                  default: Acme Co.
+                  example: Acme Co.
+                organization_domain:
+                  type: string
+                  default: acme.com
+                  example: acme.com
+                primary_contact_email:
+                  type: string
+                  default: foo@acme.com
+                  example: foo@acme.com
+                street_address_1:
+                  type: string
+                  default: 1 Foobar Rd.
+                  example: 1 Foobar Rd.
+                street_address_2:
+                  type: string
+                  example: 2nd Floor
+                city:
+                  type: string
+                  default: Eastboro
+                  example: Eastboro
+                state_region:
+                  type: string
+                  default: MA
+                  example: MA
+                postal_code:
+                  type: string
+                  default: 90210
+                  example: 90210
+                phone:
+                  type: string
+                  default: (508) 867-5309
+                  example: (508) 867-5309
+  responses:
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /organizationCreate

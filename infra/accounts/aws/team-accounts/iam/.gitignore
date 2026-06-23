@@ -1,0 +1,3 @@
+main.tf
+*.tfplan
+team_account_ids.txt

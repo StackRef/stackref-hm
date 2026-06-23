@@ -1,0 +1,168 @@
+openapi: 3.1.0
+info:
+  title: stackref_main
+  description: >
+    This is the primary API for all StackRef calls from the Primary Frontend,
+    the Coach application, and the Websocket server.
+  version: 1.11.0
+  contact:
+    name: Jordan Avery
+    email: admin@example.com
+servers:
+  - url: https://api.example.com
+  - url: https://demo.example.com/api
+  - url: https://{apigw_id}.execute-api.us-east-1.amazonaws.com
+    variables:
+      apigw_id:
+        description: The AWS API Gateway ID
+        default: 33t7jq9x85
+paths:
+  /amznMktEntitlement:
+    $ref: './amzMktEntitlement.yml'
+  /assetCreate:
+    $ref: './assetCreate.yml'
+  /assetDelete:
+    $ref: './assetDelete.yml'
+  /assetRead:
+    $ref: './assetRead.yml'
+  /cloudAccountRead:
+    $ref: './cloudAccountRead.yml'
+  /cloudAccountUpdate:
+    $ref: './cloudAccountUpdate.yml'
+  /cloudAccountUserCreate:
+    $ref: './cloudAccountUserCreate.yml'
+  /cloudAccountUserDelete:
+    $ref: './cloudAccountUserDelete.yml'
+  /cloudAccountUserUpdate:
+    $ref: './cloudAccountUserUpdate.yml'
+  /coinBankRead:
+    $ref: './coinBankRead.yml'
+  /coinBankUpdate:
+    $ref: './coinBankUpdate.yml'
+  /eventCreate:
+    $ref: './eventCreate.yml'
+  /eventRead:
+    $ref: './eventRead.yml'
+  /eventUpdate:
+    $ref: './eventUpdate.yml'
+  /generateUUID:
+    $ref: './generateUUID.yml'
+  /getUser:
+    $ref: './getUser.yml'
+  /judgingCriterionCreate:
+    $ref: './judgingCriterionCreate.yml'
+  /judgingCriterionRead:
+    $ref: './judgingCriterionRead.yml'
+  /judgingCriterionUpdate:
+    $ref: './judgingCriterionUpdate.yml'
+  /kanbanRead:
+    $ref: './kanbanRead.yml'
+  /kanbanUpdate:
+    $ref: './kanbanUpdate.yml'
+  /marketplaceRead:
+    $ref: './marketplaceRead.yml'
+  /organizationCreate:
+    $ref: './organizationCreate.yml'
+  /organizationInvitation:
+    $ref: './organizationInvitation.yml'
+  /organizationRead:
+    $ref: './organizationRead.yml'
+  /organizationUpdate:
+    $ref: './organizationUpdate.yml'
+  /participantCreate:
+    $ref: './participantCreate.yml'
+  /participantRead:
+    $ref: './participantRead.yml'
+  /participantUpdate:
+    $ref: './participantUpdate.yml'
+  /stackCashPurchase:
+    $ref: './stackCashPurchase.yml'
+  /stackCashPurchaseStripe:
+    $ref: './stackCashPurchaseStripe.yml'
+  /teamAnalysisRead:
+    $ref: './teamAnalysisRead.yml'
+  /teamCreate:
+    $ref: './teamCreate.yml'
+  /teamRead:
+    $ref: './teamRead.yml'
+  /teamUpdate:
+    $ref: './teamUpdate.yml'
+  /teamMemberCreate:
+    $ref: './teamMemberCreate.yml'
+  /teamMemberRead:
+    $ref: './teamMemberRead.yml'
+  /teamMemberUpdate:
+    $ref: './teamMemberUpdate.yml'
+  /teamScoreItemRead:
+    $ref: './teamScoreItemRead.yml'
+  /teamScoreItemUpdate:
+    $ref: './teamScoreItemUpdate.yml'
+  /teamEventFeedbackRead:
+    $ref: './teamEventFeedbackRead.yml'
+  /teamEventFeedbackUpdate:
+    $ref: './teamEventFeedbackUpdate.yml'
+  /userRead:
+    $ref: './userRead.yml'
+  /userRegistration:
+    $ref: './userRegistration.yml'
+  /userTagRead:
+    $ref: './userTagRead.yml'
+  /userUpdate:
+    $ref: './userUpdate.yml'
+components:
+  schemas:
+    ResponseMetadata:
+      type: object
+      properties:
+        RequestId:
+          type: string
+          format: uuid
+        HTTPStatusCode:
+          type: number
+          format: int32
+          example: 200
+        HTTPHeaders:
+          type: object
+          properties:
+            x-amzn-requestid:
+              type: string
+              format: uuid
+            content-type:
+              type: string
+              example: application/json
+            content-length:
+              type: string
+              example: '2364'
+            date:
+              type: string
+              format: date-time
+        RetryAttempts:
+          type: number
+          format: int32
+        numberOfRecordsUpdated:
+          type: number
+          format: int32
+        records:
+          type: array
+          items:
+            type: object
+            properties:
+              stringValue:
+                type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        **Auth0 JWT**
+        
+        This must be retrieved from the front-end after one logs in, or via a backend service authentication.
+      bearerFormat: JWT
+    stripe-signature:
+      type: apiKey
+      in: header
+      name: stripe-signature
+      description: |
+        **Stripe Signature**
+        
+        Private key signature that Stripe sends via webhook

@@ -1,0 +1,7 @@
+output "snyk_readonly_role_arn" {
+  value = aws_iam_role.snyk_readonly.arn
+}
+
+output "datadog_readonly_role_arn" {
+  value = aws_iam_role.datadog_readonly.arn
+}

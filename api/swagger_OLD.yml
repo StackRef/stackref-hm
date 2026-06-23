@@ -1,0 +1,4533 @@
+openapi: 3.0.3
+info:
+  title: stackref_main
+  description: >
+    This is the primary API for all StackRef calls from the Primary Frontend,
+    the Coach application, and the Websocket server.
+  version: 1.11.0
+  contact:
+    name: Jordan Avery
+    email: admin@example.com
+servers:
+  - url: https://api.example.com
+  - url: https://demo.example.com/api
+  - url: https://{apigw_id}.execute-api.us-east-1.amazonaws.com
+    variables:
+      apigw_id:
+        description: The AWS API Gateway ID
+        default: 33t7jq9x85
+paths:
+  /amznMktEntitlement:
+    get:
+      summary: Retrieve/update details of an Amazon Marketplace entitlement
+      tags:
+        - amzMkt
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: x-amzn-marketplace-token
+          in: query
+          description: Token retrieved when customer clicks the "setup" link in AWS Marketplace
+          required: true
+          schema:
+            type: string
+        - name: organization_uuid
+          in: query
+          description: |
+            Organization UUID
+
+            Only necessary when being called from a non-user or platform admin
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /amzMktEntitlement
+    post:
+      summary: Process an entitlement
+      tags:
+        - amzMkt
+      description: Used for processing an Amazon Marketplace entitlement for an Organization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: |
+            Organization UUID
+
+            Only necessary when being called from a non-user or platform admin
+          required: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Entitlement process payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: utilize
+                entitlement:
+                  type: string
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: number
+                    example: 200
+                  cloud_account_user_uuid:
+                    type: string
+                    format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /amzMktEntitlement
+  /assetCreate:
+    post:
+      summary: Create an asset such as an image, invitation list, etc.
+      tags:
+        - asset
+      description: Used for uploading or creating assets stored in S3 and referenced in DB
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: asset_entity_uuid
+          in: query
+          description: |
+            Entity UUID (event, team, etc.) owning the Asset
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: asset_type
+          in: query
+          description: |
+            Asset type being added (avatar_image, banner_image, invitation_list, etc.)
+          required: true
+          schema:
+            type: string
+            example: avatar_image
+      requestBody:
+        description: Asset Create payload (JSON object or multipart)
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                filepond:
+                  type: string
+                  format: binary
+                  description: File content
+              description: Asset Create payload (multipart)
+          application/json:
+            schema:
+              type: object
+              properties:
+                entity_name:
+                  type: string
+                  description: Name of Team, Event, etc. used as basis for AI-generated image
+              description: Asset Create payload (JSON)
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_uuid:
+                      type: string
+                      format: uuid
+                    account_cloud_id:
+                      type: string
+                    account_name:
+                      type: string
+                    account_owner_uuid:
+                      type: string
+                      format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /assetCreate
+  /assetDelete:
+    post:
+      summary: Delete a previously-stored asset such as an image, invitation list, etc.
+      tags:
+        - asset
+      description: Used for deleting uploaded assets from the DB and S3
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Asset Delete payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                asset_entity_uuid:
+                  type: string
+                  format: uuid
+                asset_uuid:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_uuid:
+                      type: string
+                      format: uuid
+                    account_cloud_id:
+                      type: string
+                    account_name:
+                      type: string
+                    account_owner_uuid:
+                      type: string
+                      format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /assetDelete
+  /assetRead:
+    get:
+      summary: Retrieve a previously-stored asset such as an image, invitation list, etc.
+      tags:
+        - asset
+      description: Used for reading binary uploaded asset data
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: entity_uuid
+          in: query
+          description: |
+            Entity UUID
+
+            For now this is required and must match the UUID of an Organization, Event, Team, or User.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: asset_uuid
+          in: query
+          description: Asset UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /assetRead
+  /cloudAccountRead:
+    get:
+      summary: Retrieve details of one or many Cloud Accounts
+      tags:
+        - cloudAccount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: entity_uuid
+          in: query
+          description: |
+            Entity UUID
+
+            For now this is required and must match the UUID of an Organization, Event, Team, or User.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/cloudAccountRead_defaultResponse'
+                  - $ref: '#/components/schemas/cloudAccountRead_emptyResponse'
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /cloudAccountRead
+  /cloudAccountUpdate:
+    post:
+      summary: Update a Cloud Account on the platform
+      tags:
+        - cloudAccount
+      description: Used for assigning/unassigning cloud accounts to teams, etc.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Cloud Account payload
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/cloudAccountUpdate_assignPayload'
+                - $ref: '#/components/schemas/cloudAccountUpdate_unassignAllPayload'
+                - $ref: '#/components/schemas/cloudAccountUpdate_unassignOnePayload'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_uuid:
+                      type: string
+                      format: uuid
+                    account_cloud_id:
+                      type: string
+                    account_name:
+                      type: string
+                    account_owner_uuid:
+                      type: string
+                      format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /cloudAccountUpdate
+  /cloudAccountUserCreate:
+    post:
+      summary: Create a Cloud Account User on the platform
+      tags:
+        - cloudAccount
+      description: Used for granting a User access to a Cloud Account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Cloud Account User payload
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/cloudAccountUserCreate_teamPayload'
+                - $ref: '#/components/schemas/cloudAccountUserCreate_eventPayload'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: number
+                    example: 200
+                  cloud_account_user_uuid:
+                    type: string
+                    format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /cloudAccountUserCreate
+  /cloudAccountUserDelete:
+    post:
+      summary: Delete a Cloud Account User from the platform and cloud
+      tags:
+        - cloudAccount
+      description: Used for removing a User's access to a Cloud Account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Cloud Account User payload
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/cloudAccountUserDelete_teamPayload'
+                - $ref: '#/components/schemas/cloudAccountUserDelete_eventPayload'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: number
+                    example: 200
+                  user_uuid:
+                    type: string
+                    format: uuid
+                  cloud_account_user_id:
+                    type: string
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /cloudAccountUserDelete
+  /cloudAccountUserUpdate:
+    post:
+      summary: Update a Cloud Account User on the platform and cloud
+      tags:
+        - cloudAccount
+      description: Used for removing a User's access to Cloud Account Groups
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Cloud Account User payload
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/cloudAccountUserUpdate_defaultPayload'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: number
+                    example: 200
+                  user_uuid:
+                    type: string
+                    format: uuid
+                  cloud_account_user_id:
+                    type: string
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /cloudAccountUserUpdate
+  /coinBankRead:
+    get:
+      summary: Retrieve details of one or many Banks
+      tags:
+        - stackCash
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: entity_uuid
+          in: query
+          description: |
+            Entity UUID
+
+            For now this is required and must match the UUID of an Organization, Event, or Team.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    entity_uuid:
+                      type: string
+                      format: uuid
+                    balance_value:
+                      type: number
+                      format: double
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /coinBankRead
+  /coinBankUpdate:
+    post:
+      summary: Update a Coin Bank on the platform
+      tags:
+        - stackCash
+      description: Used for moving StackRef Coin into, out-of, or between accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Coin Bank transaction
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: transaction
+                  example: transaction
+                transaction:
+                  type: object
+                  properties:
+                    sending_entity_uuid:
+                      type: string
+                      format: uuid
+                      example: 00000000-0000-0000-0000-000000000000
+                    receiving_entity_uuid:
+                      type: string
+                      format: uuid
+                    transaction_value:
+                      type: number
+                      format: double
+      responses:
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /coinBankUpdate
+  /eventCreate:
+    post:
+      summary: Create a new Event on the platform
+      tags:
+        - event
+      description: Creates a new Event when supplied with its details. Returns `event_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Event creation information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                  example: create
+                event:
+                  type: object
+                  properties:
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    ts_event_start:
+                      type: string
+                      example: "2022-01-01 00:00:00.000"
+                    ts_event_end:
+                      type: string
+                      example: "2022-01-08 00:00:00.000"
+                    event_judging_minutes:
+                      type: number
+                    cloud_accounts_enabled:
+                      type: boolean
+                    add_all_users:
+                      type: boolean
+                    generate_image:
+                      type: boolean
+                    event_type_id:
+                      type: number
+                      example: 1
+                    event_team_form_mode_id:
+                      type: number
+                      example: 1
+                    event_details:
+                      type: object
+                      properties:
+                        event_name:
+                          type: string
+                        event_summary:
+                          type: string
+                        event_description:
+                          type: string
+                        event_max_team_size:
+                          type: number
+                          example: 2
+                    entity_asset:
+                      type: string
+                      example: "{\"status_code\":200,\"asset_entity_uuid\":\"c2b55dce-c710-4d8e-9ab5-cec08250a5bc\",\"asset_uuid\":\"6ee33d65-6d1f-4bc5-8ba7-61b70cf6aab2\"}"
+      responses:
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /eventCreate
+  /eventRead:
+    get:
+      summary: Retrieve details of one or many Events
+      tags:
+        - event
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: action
+          in: query
+          description: Alternate action to perform (i.e., 'judging_status')
+          required: false
+          schema:
+            type: string
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: |
+            Organization UUID
+
+            Only required if the Bearer token is for a User only with grants to Read that Organization's details
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+        - name: event_uuid
+          in: query
+          description: |
+            Event UUID
+
+            Only required if the Bearer token is for a User only with grants to Read that Event's details
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/eventRead_defaultResponse'
+                  - $ref: '#/components/schemas/eventRead_judgingStatusResponse'
+                  - $ref: '#/components/schemas/eventRead_eventActivityResponse'
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /eventRead
+  /eventUpdate:
+    post:
+      summary: Update an Event on the platform
+      tags:
+        - event
+      description: Updates an Event Team when supplied with its details. Returns `team_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Event update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: update
+                  example: update|delete
+                team:
+                  type: object
+                  properties:
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    ts_event_start:
+                      type: string
+                      format: date-time
+                    ts_event_end:
+                      type: string
+                      format: date-time
+                    event_judging_minutes:
+                      type: number
+                    event_status_id:
+                      type: number
+                    cloud_accounts_enabled:
+                      type: boolean
+                    event_type_id:
+                      type: number
+                    event_team_form_mode_id:
+                      type: number
+                    event_details:
+                      type: object
+                      properties:
+                        event_name:
+                          type: string
+                        event_summary:
+                          type: string
+                        event_description:
+                          type: string
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event_uuid:
+                    type: string
+                    format: uuid
+                  updated:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /eventUpdate
+  /generateUUID:
+    get:
+      summary: Simple UUID generator for use in other calls
+      tags:
+        - other
+      description: >
+        Use this call to generate a unique UUID to be used in playbook creation, etc.
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    format: uuid
+          links:
+            GeneratedUUID:
+              parameters:
+                description: Generated UUID
+                uuid: $response.body#/uuid
+        default:
+          description: Default response for GET /generateUUID
+  /getUser:
+    post:
+      summary: Method for to read User information from StackRef database
+      tags:
+        - user
+      description: Retrieves User information details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: User information payload. Specify only one of `auth_provider_id` or user_uuid but not both.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    auth_provider_id:
+                      type: string
+                      default: google-oauth2|107264207147211635796
+                      example: google-oauth2|107264207147211635796
+                    user_uuid:
+                      type: string
+                      format: uuid
+                      default: 507c3ad0-bfb8-4ae6-9bb0-e9ee047730b1
+                      example: 507c3ad0-bfb8-4ae6-9bb0-e9ee047730b1
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user_uuid:
+                      type: string
+                      format: uuid
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    organization_name:
+                      type: string
+                    email_verified:
+                      type: boolean
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    registered:
+                      type: boolean
+                    ts_last_login:
+                      type: string
+                      format: date-time
+                    tags:
+                      type: object
+                      properties:
+                        skills:
+                          type: array
+                          items:
+                            type: string
+                          example: [python,java,mysql]
+                    settings:
+                      type: object
+                    user_role_grants:
+                      type: array
+                      items:
+                        type: string
+                      example: [ui,organization_read,organization_write]
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /getUser
+  /judgingCriterionCreate:
+    post:
+      summary: Create a new judging criterion on the platform
+      tags:
+        - judgingCriterion
+      description: Creates a new judging criterion item when supplied with its details. Returns `judging_criterion_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Criterion creation information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                criterion:
+                  type: object
+                  properties:
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    criterion_weight:
+                      type: number
+                    category_id:
+                      type: number
+                    criterion_details:
+                      type: object
+                      properties:
+                        criterion_name:
+                          type: string
+                        criterion_summary:
+                          type: string
+                        criterion_description:
+                          type: string
+      responses:
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /judgingCriterionCreate
+  /judgingCriterionRead:
+    get:
+      summary: Retrieve judging criterion details of Organization or Event
+      tags:
+        - judgingCriterion
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: |
+            Organization UUID
+
+            Use when requesting what judging criterion are available to be assigned to Events
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: event_uuid
+          in: query
+          description: |
+            Event UUID
+
+            Use when requesting what judging criterion are assigned to an Event
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: judging_criterion_uuid
+          in: query
+          description: |
+            Judging Criterion UUID
+
+            Use when requesting a single Judging Criterion
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    judging_criterion_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    criterion_weight:
+                      type: number
+                    judging_criterion_status_id:
+                      type: number
+                    judging_criterion_status_name:
+                      type: string
+                    judging_criterion_category_id:
+                      type: number
+                    judging_criterion_category_name:
+                      type: string
+                    judging_criterion_category_icon:
+                      type: string
+                    criterion_details:
+                      type: object
+                      properties:
+                        criterion_name:
+                          type: string
+                        criterion_summary:
+                          type: string
+                        criterion_description:
+                          type: string
+                    judging_criterion_statuses:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          judging_criterion_status_id:
+                            type: number
+                          judging_criterion_status_name:
+                            type: string
+                    judging_criterion_categories:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          judging_criterion_category_id:
+                            type: number
+                          judging_criterion_category_name:
+                            type: string
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /judgingCriterionRead
+  /judgingCriterionUpdate:
+    post:
+      summary: Updates a judging criterion on the platform
+      tags:
+        - judgingCriterion
+      description: Updates a judging criterion item when supplied with its details. Returns `judging_criterion_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Criterion update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: update
+                criterion:
+                  type: object
+                  properties:
+                    judging_criterion_uuid:
+                      type: string
+                      format: uuid
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    criterion_weight:
+                      type: number
+                    category_id:
+                      type: number
+                    criterion_details:
+                      type: object
+                      properties:
+                        criterion_name:
+                          type: string
+                        criterion_summary:
+                          type: string
+                        criterion_description:
+                          type: string
+      responses:
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /judgingCriterionUpdate
+  /kanbanRead:
+    get:
+      summary: Retrieve Team kanban items
+      tags:
+        - kanban
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: team_uuid
+          in: query
+          description: Team UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kanban_item_statuses:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kanban_item_status_id:
+                          type: number
+                        kanban_item_status_name:
+                          type: string
+                        kanban_item_status_description:
+                          type: string
+                  kanban_items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kanban_item_uuid:
+                          type: string
+                          format: uuid
+                        kanban_item_status_id:
+                          type: number
+                        kanban_item_priority:
+                          type: number
+                        kanban_item_issuer:
+                          type: object
+                          properties:
+                            team_member_uuid:
+                              type: string
+                              format: uuid
+                            first_name:
+                              type: string
+                            last_name:
+                              type: string
+                            email_address:
+                              type: string
+                              format: email
+                        kanban_item_owner:
+                          type: object
+                          properties:
+                            team_member_uuid:
+                              type: string
+                              format: uuid
+                            first_name:
+                              type: string
+                            last_name:
+                              type: string
+                            email_address:
+                              type: string
+                              format: email
+                        kanban_item_details:
+                          type: object
+                        ts_modified:
+                          type: string
+                          format: date-time
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /kanbanRead
+  /kanbanUpdate:
+    post:
+      summary: Update a Team kanban on the platform
+      tags:
+        - kanban
+      description: Updates existing Team kaban items when supplied with its details. Returns status code.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Kanban update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: update
+                  example: update
+                kanban_item:
+                  type: object
+                  properties:
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    kanban_item_uuid:
+                      type: string
+                      format: uuid
+                    kanban_item_status_id:
+                      type: number
+                    kanban_item_priority:
+                      type: number
+                    kanban_item_issuer_uuid:
+                      type: string
+                      format: uuid
+                    kanban_item_owner_uuid:
+                      type: string
+                      format: uuid
+                    kanban_item_details:
+                      type: object
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organization_uuid:
+                    type: string
+                    format: uuid
+                  updated:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /kanbanUpdate
+  /marketplaceRead:
+    get:
+      summary: Retrieve details of the StackRef Marketplace
+      tags:
+        - marketplace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    marketplace_item_id:
+                      type: number
+                      format: int32
+                    marketplace_item_name:
+                      type: string
+                    marketplace_item_description:
+                      type: string
+                    marketplace_item_type_id:
+                      type: number
+                      format: int32
+                    marketplace_item_type_name:
+                      type: string
+                    stackcash_cost:
+                      type: number
+                      format: double
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /marketplaceRead
+  /organizationCreate:
+    post:
+      summary: Create a new Organization on the platform
+      tags:
+        - organization
+      description: Creates a new Organization when supplied with its details. Returns `organization_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Organization creation information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                  example: create
+                user_uuid:
+                  type: string
+                  format: uuid
+                organization:
+                  type: object
+                  properties:
+                    organization_name:
+                      type: string
+                      default: Acme Co.
+                      example: Acme Co.
+                    organization_domain:
+                      type: string
+                      default: acme.com
+                      example: acme.com
+                    primary_contact_email:
+                      type: string
+                      default: foo@acme.com
+                      example: foo@acme.com
+                    street_address_1:
+                      type: string
+                      default: 1 Foobar Rd.
+                      example: 1 Foobar Rd.
+                    street_address_2:
+                      type: string
+                      example: 2nd Floor
+                    city:
+                      type: string
+                      default: Eastboro
+                      example: Eastboro
+                    state_region:
+                      type: string
+                      default: MA
+                      example: MA
+                    postal_code:
+                      type: string
+                      default: 90210
+                      example: 90210
+                    phone:
+                      type: string
+                      default: (508) 867-5309
+                      example: (508) 867-5309
+      responses:
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /organizationCreate
+  /organizationInvitation:
+    get:
+      summary: Retrieve all invitations for an Organization
+      tags:
+        - organization
+      description: Returns details of all existing Organization invitations of supplied `orgnization_uuid`
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: Organization UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    organization_invitation_uuid:
+                      type: string
+                      format: uuid
+                    invitation_email:
+                      type: string
+                      format: email
+                    invitation_code:
+                      type: string
+                    creator_user_uuid:
+                      type: string
+                      format: uuid
+                    claiming_user_uuid:
+                      type: string
+                      format: uuid
+                    organization_invitation_status_name:
+                      type: string
+                      example: Ready|Claimed|On Hold
+                    ts_claimed:
+                      type: string
+                      format: date-time
+                    ts_expires:
+                      type: string
+                      format: date-time
+                    invitation_expired:
+                      type: boolean
+                    ts_created:
+                      type: string
+                      format: date-time
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /organizationInvitation
+    post:
+      summary: Claim or Create an Organization invitation
+      tags:
+        - organization
+      description: Returns details of a newly-created Organization invitation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: |
+          **Claim or Create an Organization invitation**
+
+          action: `create`, `claim`, or `upload`
+
+          `create` action requires: `organization_uuid`, `creator_user_uuid`, `invitation_email`
+
+          `claim` action requires: `claiming_user_uuid`, `organization_domain`, `invitation_code`
+
+          `upload` action requires: `organization_invitation_uuid`, `claiming_user_uuid`, `invitation_file_has_header`, `invitation_file_data`
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                  - $ref: '#/components/schemas/organizationInvitation_claimInvitationPayload'
+                  - $ref: '#/components/schemas/organizationInvitation_uploadInvitationsHeaderPayload'
+                  - $ref: '#/components/schemas/organizationInvitation_uploadInvitationsNoHeaderPayload'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/organizationInvitation_claimInvitationResponse'
+                  - $ref: '#/components/schemas/organizationInvitation_createInvitationResponse'
+                  - $ref: '#/components/schemas/organizationInvitation_uploadInvitationsResponse'
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /organizationInvitation
+  /organizationRead:
+    get:
+      summary: Retrieve details of one or many Organizations
+      tags:
+        - organization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: |
+            Organization UUID
+
+            Only required if the Bearer token is for a User only with grants to Read that Organization's details
+          required: false
+          schema:
+            type: string
+            format: uuid
+            example: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+            default: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    organization_name:
+                      type: string
+                      format: email
+                    organization_domain:
+                      type: string
+                      example: acme.com
+                    organization_logo_image:
+                      type: string
+                      format: binary
+                    primary_contact_email:
+                      type: string
+                      format: email
+                    street_address_1:
+                      type: string
+                      example: 1 Foobar Rd.
+                    street_address_2:
+                      type: string
+                      example: 2nd Floor
+                    city:
+                      type: string
+                    state_region:
+                      type: string
+                      example: MA
+                    postal_code:
+                      type: string
+                      example: 01532
+                    phone:
+                      type: string
+                      example: (508) 867-5309
+                    organization_status:
+                      type: string
+                      example: Active|On Hold
+                    bank_balance:
+                      type: number
+                      format: int32
+                    amazon_marketplace_entitlements:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          entitlement_uuid:
+                            type: string
+                            format: uuid
+                    user_roles:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          user_role_id:
+                            type: number
+                            format: int32
+                          user_role_name:
+                            type: string
+                            example: Owner|Admin|Standard
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /organizationRead
+  /organizationUpdate:
+    post:
+      summary: Update an existing Organization on the platform
+      tags:
+        - organization
+      description: Updates an existing Organization when supplied with its details. Returns status code.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: The organization_uuid of the Organization to update
+          required: true
+          schema:
+            type: string
+            format: uuid
+            default: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+            example: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+      requestBody:
+        description: Organization update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: update
+                  example: update
+                organization:
+                  type: object
+                  properties:
+                    organization_name:
+                      type: string
+                      default: Acme Co.
+                      example: Acme Co.
+                    organization_domain:
+                      type: string
+                      default: acme.com
+                      example: acme.com
+                    primary_contact_email:
+                      type: string
+                      default: foo@acme.com
+                      example: foo@acme.com
+                    street_address_1:
+                      type: string
+                      default: 1 Foobar Rd.
+                      example: 1 Foobar Rd.
+                    street_address_2:
+                      type: string
+                      example: 2nd Floor
+                    city:
+                      type: string
+                      default: Eastboro
+                      example: Eastboro
+                    state_region:
+                      type: string
+                      default: MA
+                      example: MA
+                    postal_code:
+                      type: string
+                      default: 90210
+                      example: 90210
+                    phone:
+                      type: string
+                      default: (508) 867-5309
+                      example: (508) 867-5309
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organization_uuid:
+                    type: string
+                    format: uuid
+                  updated:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /organizationUpdate
+  /participantCreate:
+    post:
+      summary: Create a new Event Participant on the platform
+      tags:
+        - participant
+      description: Creates a new Event Participant when supplied with its details. Returns `participant_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Participant creation information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                  example: create
+                participant:
+                  type: object
+                  properties:
+                    user_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    participant_role_id:
+                      type: number
+                      format: int32
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  participant_uuid:
+                    type: string
+                    format: uuid
+                  created:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /participantCreate
+  /participantRead:
+    get:
+      summary: Retrieve details of one or many Event Participants
+      tags:
+        - participant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: Organization UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: event_uuid
+          in: query
+          description: Event UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: user_uuid
+          in: query
+          description: User UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    participant_uuid:
+                      type: string
+                      format: uuid
+                    user_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    is_active:
+                      type: boolean
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    email_address:
+                      type: string
+                      format: email
+                    ts_last_login:
+                      type: string
+                      format: date-time
+                    user_tags:
+                      type: object
+                      properties:
+                        skills:
+                          type: array
+                          items:
+                            type: string
+                          example: [python,java,mysql]
+                    participant_roles:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          participant_role_id:
+                            type: number
+                            format: int32
+                          participant_role_name:
+                            type: string
+                            example: Spectator|Player|SME|Judge
+                    participant_teams:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          team_uuid:
+                            type: string
+                            format: uuid
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /participantRead
+  /participantUpdate:
+    post:
+      summary: Update an Event Participant on the platform
+      tags:
+        - participant
+      description: Updates an Event Participant when supplied with its details. Returns `participant_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Participant update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: delete
+                  example: delete
+                participant:
+                  type: object
+                  properties:
+                    participant_uuid:
+                      type: string
+                      format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  participant_uuid:
+                    type: string
+                    format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /participantUpdate
+  /playbooks:
+    get:
+      summary: Get list of unprocessed playbooks
+      tags:
+        - other
+      description: TODO
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization_uuid
+          in: query
+          description: Organization UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            default: c36dd258-023a-4068-aeab-990ee10e8869
+        - name: event_uuid
+          in: query
+          description: Event UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            default: ad71ad37-adca-4573-b20d-87a3277e94ac
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playbook:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        playbook_uuid:
+                          type: string
+                          format: uuid
+                        playbook_plays:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              play_details:
+                                type: object
+                                properties:
+                                  play_action:
+                                    type: string
+                                    example: start|stop|restart
+                                  acting_player:
+                                    type: string
+                                    format: uuid
+                                  resource_uuid:
+                                    type: string
+                                    format: uuid
+                        playbook_status:
+                          type: number
+                          format: int32
+                          example: 200
+                        organization_uuid:
+                          type: string
+                          format: uuid
+                        event_uuid:
+                          type: string
+                          format: uuid
+                        ts_created:
+                          type: string
+                          format: date-time
+                        ts_modified:
+                          type: string
+                          format: date-time
+        '204':
+          description: No content
+        '403':
+          description: Not authorized
+        '503':
+          description: RDS error
+        '504':
+          description: RDS timeout
+        default:
+          description: Default response for GET /playbooks
+    post:
+      summary: Submit new playbook
+      tags:
+        - other
+      description: >
+        Submit a new playbook to the API/DB. Must have a unique `playbook_uuid`, which can be retrieved from getUUID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: organization_uuid
+          in: query
+          description: Organization UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            default: c36dd258-023a-4068-aeab-990ee10e8869
+        - name: event_uuid
+          in: query
+          description: Event UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            default: ad71ad37-adca-4573-b20d-87a3277e94ac
+      requestBody:
+        description: Playbook plays and details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playbook:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      playbook_uuid:
+                        type: string
+                        format: uuid
+                      organization_uuid:
+                        type: string
+                        format: uuid
+                      event_uuid:
+                        type: string
+                        format: uuid
+                      playbook_plays:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            play_details:
+                              type: object
+                              properties:
+                                play_action:
+                                  type: string
+                                  example: start|stop|restart
+                                acting_player:
+                                  type: string
+                                  example: google-oauth2|107264207147211635796
+                                resource_uuid:
+                                  type: string
+                                  format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playbook:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        playbook_uuid:
+                          type: string
+                          format: uuid
+                        playbook_plays:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              play_details:
+                                type: object
+                                properties:
+                                  play_action:
+                                    type: string
+                                    example: start|stop|restart
+                                  acting_player:
+                                    type: string
+                                    format: uuid
+                                  resource_uuid:
+                                    type: string
+                                    format: uuid
+        '403':
+          description: Not authorized
+        '503':
+          description: RDS error
+        '504':
+          description: RDS timeout
+        default:
+          description: Default response for POST /playbooks
+  /resources:
+    get:
+      summary: Get list of all resources for an organization's event
+      tags:
+        - other
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: StackRef Application
+          required: false
+          schema:
+            type: string
+            default: SR/WS/Swagger
+        - name: organization_uuid
+          in: query
+          description: Organization UUID (Optional when using a Back-End service)
+          required: false
+          schema:
+            type: string
+            format: uuid
+            example: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+            default: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+        - name: event_uuid
+          in: query
+          description: Event UUID (Optional)
+          required: false
+          schema:
+            type: string
+            format: uuid
+            example: ad71ad37-adca-4573-b20d-87a3277e94ac
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    resource_uuid:
+                      type: string
+                      format: uuid
+                    resource_provider:
+                      type: string
+                      example: aws|azure|gcp
+                    provider_service:
+                      type: string
+                      example: ec2|rds
+                    resource_details:
+                      type: object
+                      properties:
+                        image_id:
+                          type: string
+                        key_name:
+                          type: string
+                        public_ip:
+                          type: string
+                          format: ipv4
+                        private_ip:
+                          type: string
+                          format: ipv4
+                        instance_id:
+                          type: string
+                        launch_time:
+                          type: string
+                          format: date-time
+                        architecture:
+                          type: string
+                        instance_type:
+                          type: string
+                        instance_state:
+                          type: string
+                          example: starting|running|stopping|stopped
+                        transition_time:
+                          type: string
+                          format: date-time
+                        termination_protection:
+                          type: boolean
+                    resource_tags:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          Key:
+                            type: string
+                          Value:
+                            type: string
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    ts_created:
+                      type: string
+                      format: date-time
+                    ts_checkedin:
+                      type: string
+                      format: date-time
+                    ts_modified:
+                      type: string
+                      format: date-time
+        '204':
+          description: No content
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /playbooks
+  /services:
+    get:
+      summary: Retrieve list of services for an organization's event
+      tags:
+        - other
+      description: |
+        Retrieves a list and details of services running for an organization's event.
+        
+        Optionally provide `resource_uuid` for list of services configured for a specific resource.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: staleness
+          in: query
+          description: How far back to query services state (seconds)
+          required: false
+          schema:
+            type: number
+            format: int32
+            default: 10000
+        - name: organization_uuid
+          in: query
+          description: Organization UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            default: c36dd258-023a-4068-aeab-990ee10e8869
+        - name: event_uuid
+          in: query
+          description: Event UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+            default: ad71ad37-adca-4573-b20d-87a3277e94ac
+        - name: resource_uuid
+          in: query
+          description: Resource UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+            default: ad7ddcf2-94fe-4dd3-b853-894e2b9c95f0
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseMetadata'
+        '204':
+          description: No content
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /services
+  /stackCashPurchase:
+    get:
+      summary: Retrieve/update details of an Amazon Marketplace entitlement
+      tags:
+        - stackCash
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: |
+            Organization UUID
+
+            Only necessary when being called from a non-user or platform admin
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /stackCashPurchase
+    post:
+      summary: Process a payment request
+      tags:
+        - stackCash
+      description: Used for processing a purchase request
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: |
+            Organization UUID
+
+            Only necessary when being called from a non-user or platform admin
+          required: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Payment details payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: purchase
+                purchase_details:
+                  type: object
+                  properties:
+                    method:
+                      type: string
+                      default: stripe
+                      example: amz_mkt_metering
+                    quantity:
+                      type: number
+                      format: double
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: number
+                    format: int4
+                    default: 200
+                  marketplace_metering_uuid:
+                    type: string
+                    format: uuid
+                  organization_uuid:
+                    type: string
+                    format: uuid
+                  transaction_value:
+                    type: number
+                    format: double
+                  
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /stackCashPurchase
+  /stackCashPurchaseStripe:
+    post:
+      summary: Process a webhook call from Stripe
+      tags:
+        - stackCash
+      description: Used for processing a purchase request
+      security:
+        - stripe-signature: []
+      requestBody:
+        description: Payment details payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              description: JSON string payload from Stripe
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: number
+                    format: int4
+                    default: 200
+                  stripe_intent_id:
+                    type: string
+                  organization_uuid:
+                    type: string
+                    format: uuid
+                  transaction_value:
+                    type: number
+                    format: double
+                  stackcash_value:
+                    type: number
+                    format: double
+                  
+        '500':
+          description: Error
+        default:
+          description: Default response for POST /stackCashPurchaseStripe
+  /teamAnalysisRead:
+    get:
+      summary: Retrieve Event Team analysis items
+      tags:
+        - teamAnalysis
+      description: Returns one or more team_analysis_results items
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: team_uuid
+          in: query
+          description: |
+            Team UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    team_analysis_result_uuid:
+                      type: string
+                      format: uuid
+                    team_analysis_result_source:
+                      type: string
+                    ts_created:
+                      type: string
+                      format: date-time
+                    team_analysis_result_json:
+                      type: object
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /teamAnalysisRead
+  /teamCreate:
+    post:
+      summary: Create a new Team on the platform
+      tags:
+        - team
+      description: Creates a new Team when supplied with its details. Returns `team_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Team creation information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                  example: create
+                team:
+                  type: object
+                  properties:
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    team_details:
+                      type: object
+                      properties:
+                        team_name:
+                          type: string
+                        team_description:
+                          type: string
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team_uuid:
+                    type: string
+                    format: uuid
+                  created:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /teamCreate
+  /teamRead:
+    get:
+      summary: Retrieve details of one or many Teams
+      tags:
+        - team
+      description: Updates and existing Organization when supplied with its details. Returns status code.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: event_uuid
+          in: query
+          description: |
+            Event UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: team_uuid
+          in: query
+          description: |
+            Team UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    team_details:
+                      type: object
+                      properties:
+                        team_name:
+                          type: string
+                        team_description:
+                          type: string
+                    team_status_name:
+                      type: string
+                      example: Ready|Not Ready|Archived
+                    team_total_score:
+                      type: number
+                      format: double
+                    bank_balance:
+                      type: number
+                      format: double
+                    team_member_roles:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          team_member_role_id:
+                            type: number
+                            format: int32
+                          team_member_role_name:
+                            type: string
+                            example: Player|Captain
+                    team_members:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          team_member_uuid:
+                            type: string
+                            format: uuid
+                          participant_uuid:
+                            type: string
+                            format: uuid
+                    team_external_links:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          team_external_link_uuid:
+                            type: string
+                            format: uuid
+                          team_private:
+                            type: boolean
+                          external_link_type_name:
+                            type: string
+                          team_external_link_name:
+                            type: string
+                          team_external_link_url:
+                            type: string
+                            format: uri
+                    cloud_account:
+                      type: object
+                      properties:
+                        cloud_account_uuid:
+                          type: string
+                          format: uuid
+                        cloud_account_name:
+                          type: string
+                    banner_image_uuid:
+                      type: string
+                      format: uuid
+                    avatar_image_uuid:
+                      type: string
+                      format: uuid
+                    codecommit_info:
+                      type: object
+                      properties:
+                        team_codecommit_repo_url:
+                          type: string
+                        team_codecommit_user:
+                          type: string
+                        team_codecommit_password:
+                          type: string
+                          format: password
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /teamRead
+  /teamUpdate:
+    post:
+      summary: Update an Event Team on the platform
+      tags:
+        - team
+      description: Updates an Event Team when supplied with its details. Returns `team_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Team update information
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/teamUpdate_updateTeamPayload'
+                - $ref: '#/components/schemas/teamUpdate_deleteTeamPayload'
+                - $ref: '#/components/schemas/teamUpdate_addExternalLinkPayload'
+                - $ref: '#/components/schemas/teamUpdate_deleteExternalLinkPayload'
+                - $ref: '#/components/schemas/teamUpdate_updateExternalLinkPayload'
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team_uuid:
+                    type: string
+                    format: uuid
+                  team_external_link_uuid:
+                    type: string
+                    format: uuid
+                  updated:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /teamUpdate
+  /teamMemberCreate:
+    post:
+      summary: Create a new Team Member for Team on the platform
+      tags:
+        - teamMember
+      description: Creates a new Team Member when supplied with its details. Returns `team_member_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Team Member creation information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                  example: create
+                team_member:
+                  type: object
+                  properties:
+                    participant_uuid:
+                      type: string
+                      format: uuid
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    team_member_role_id:
+                      type: number
+                      format: int32
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  participant_uuid:
+                    type: string
+                    format: uuid
+                  created:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /teamMemberCreate
+  /teamMemberRead:
+    get:
+      summary: Retrieve Team members
+      tags:
+        - teamMember
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: team_uuid
+          in: query
+          description: |
+            Team UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    team_member_uuid:
+                      type: string
+                      format: uuid
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    participant_uuid:
+                      type: string
+                      format: uuid
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    email_address:
+                      type: string
+                      format: email
+                    ts_last_login:
+                      type: string
+                      format: date-time
+                    team_member_roles:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          team_member_role_id:
+                            type: number
+                            format: int32
+                          team_member_role_name:
+                            type: string
+                            example: Player|Captain
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /teamMemberRead
+  /teamMemberUpdate:
+    post:
+      summary: Update a Team Member on the platform
+      tags:
+        - teamMember
+      description: Updates a Team Member when supplied with its details. Returns `team_member_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Team Member update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: delete|update_roles
+                team_member:
+                  type: object
+                  properties:
+                    team_member_uuid:
+                      type: string
+                      format: uuid
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    team_member_roles:
+                      type: array
+                      items:
+                        type: number
+                        example: [1, 2, 3]
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  participant_uuid:
+                    type: string
+                    format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /teamMemberUpdate
+  /teamScoreItemRead:
+    get:
+      summary: Retrieve details of one or many Team's Score Items
+      tags:
+        - teamScoreItem
+      description: Returns one or more team_score_items for one or more Teams
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: team_uuid
+          in: query
+          description: |
+            Team UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: team_score_item_uuid
+          in: query
+          description: |
+            Team Score Item UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team_score_items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        team_score_item_uuid:
+                          type: string
+                          format: uuid
+                        team_score_item_value:
+                          type: number
+                          format: double
+                        judge_uuid:
+                          type: string
+                          format: uuid
+                        judging_criterion_uuid:
+                          type: string
+                          format: uuid
+                        judging_criterion_details:
+                          type: object
+                          properties:
+                            criterion_name:
+                              type: string
+                            criterion_summary:
+                              type: string
+                            criterion_description:
+                              type: string
+                        judging_criterion_weight:
+                          type: number
+                          format: int32
+                        weighted_score:
+                          type: number
+                          format: double
+                        judging_criterion_category_name:
+                          type: string
+                        judging_criterion_category_icon:
+                          type: string
+                  team_score_category_totals:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        judging_criterion_category_id:
+                          type: number
+                          format: int32
+                        category_score_total:
+                          type: number
+                          format: double
+                        judging_criterion_category_name:
+                          type: string
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /teamScoreItemRead
+  /teamScoreItemUpdate:
+    post:
+      summary: Update/Create a Team score item
+      tags:
+        - teamScoreItem
+      description: Updates or creates a Team Score Item when supplied with details. Returns `team_score_item_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Team Score Item update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                  example: create
+                team_score_item:
+                  type: object
+                  properties:
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    judge_uuid:
+                      type: string
+                      format: uuid
+                    judging_criterion_uuid:
+                      type: string
+                      format: uuid
+                    team_score_item_value:
+                      type: number
+                      format: double
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: number
+                    format: int32
+                    example: 200
+                  team_score_item_uuid:
+                    type: string
+                    format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /teamScoreItemUpdate
+  /teamEventFeedbackRead:
+    get:
+      summary: Retrieve feedback items for an Event and/or Team
+      tags:
+        - teamEventFeedback
+      description: Returns one or more Team/Event feedback items
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: team_uuid
+          in: query
+          description: |
+            Team UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: event_uuid
+          in: query
+          description: |
+            Event UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    team_event_feedback_uuid:
+                      type: string
+                      format: uuid
+                    participant_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    feedback_text:
+                      type: string
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /teamEventFeedbackRead
+  /teamEventFeedbackUpdate:
+    post:
+      summary: Create or update a new Team or Event feedback
+      tags:
+        - teamEventFeedback
+      description: Creates or updates a new Team or Event feedback item when supplied with its details. Returns `team_event_feedback_uuid`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: Team/Event feedback information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: create
+                  example: create
+                team_event_feedback:
+                  type: object
+                  properties:
+                    participant_uuid:
+                      type: string
+                      format: uuid
+                    event_uuid:
+                      type: string
+                      format: uuid
+                    team_uuid:
+                      type: string
+                      format: uuid
+                    feedback_text:
+                      type: string
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  team_uuid:
+                    type: string
+                    format: uuid
+                  created:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /teamEventFeedbackUpdate
+  /userRead:
+    get:
+      summary: Retrieve details of one or many Users
+      tags:
+        - user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+        - name: organization_uuid
+          in: query
+          description: Organization UUID
+          required: false
+          schema:
+            type: string
+            format: uuid
+            example: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+            default: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user_uuid:
+                      type: string
+                      format: uuid
+                    email_address:
+                      type: string
+                      format: email
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    phone:
+                      type: string
+                      example: (508) 867-5309
+                    registered:
+                      type: boolean
+                    tags:
+                      type: object
+                      properties:
+                        skills:
+                          type: array
+                          items:
+                            type: string
+                          example: [python,java,mysql]
+                    user_roles:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          user_role_id:
+                            type: number
+                            format: int32
+                          user_role_name:
+                            type: string
+                            example: Owner|Admin|Standard
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /userRead
+  /userRegistration:
+    post:
+      tags:
+        - user
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Only a portion of what Auth0 sends to the API, but all we care about
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: object
+                  properties:
+                    user:
+                      type: object
+                      properties:
+                        app_metadata:
+                          type: object
+                          properties:
+                            sr-axios-error:
+                              type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        email_verified:
+                          type: boolean
+                        email:
+                          type: string
+                        family_name:
+                          type: string
+                        given_name:
+                          type: string
+                        identities:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              connection:
+                                type: string
+                              isSocial:
+                                type: boolean
+                              provider:
+                                type: string
+                              userId:
+                                type: string
+                              user_id:
+                                type: string
+                        name:
+                          type: string
+                        nickname:
+                          type: string
+                        picture:
+                          type: string
+                          format: uri
+                          example: https://path_to_image.png
+                        updated_at:
+                          type: string
+                          format: date-time
+                        user_id:
+                          type: string
+                        user_metadata:
+                          type: object
+                          properties: {}
+                        multifactor:
+                          type: array
+                          items: {}
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user_uuid:
+                      type: string
+                      format: uuid
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /userRegistration
+  /userTagRead:
+    get:
+      summary: Retrieve a User's tags
+      tags:
+        - user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    user_tag_name:
+                      type: string
+                    user_tag_type:
+                      type: string
+                    user_tag_category:
+                      type: string
+        '204':
+          description: No results
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for GET /userTagRead
+  /userUpdate:
+    post:
+      summary: Update an existing User on the platform
+      tags:
+        - user
+      description: Updates and existing User when supplied with its details. Returns status code.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: x-sr-application
+          in: header
+          description: What application/version is calling the API
+          required: true
+          style: simple
+          schema:
+            type: string
+            default: SR/Swagger
+      requestBody:
+        description: User update information
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  default: update_roles
+                  example: update|update_roles|remove_from_org
+                user:
+                  type: object
+                  properties:
+                    user_uuid:
+                      type: string
+                      format: uuid
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    email_address:
+                      type: string
+                      format: email
+                    settings:
+                      type: object
+                      properties:
+                        setting_name_1:
+                          type: string
+                        setting_name_2:
+                          type: string
+                    tags:
+                      type: object
+                      properties:
+                        skills:
+                          type: array
+                          items:
+                            type: string
+                          example: [python,java,mysql]
+                    user_roles:
+                      type: array
+                      items:
+                        type: number
+                        example: [1, 2, 3]
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Content-Type:
+              schema:
+                type: string
+              description: The MIME type of the payload
+            Content-Length:
+              schema:
+                type: number
+              description: Byte length of the payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organization_uuid:
+                    type: string
+                    format: uuid
+                  updated:
+                    type: boolean
+        '403':
+          description: Not authorized
+        default:
+          description: Default response for POST /userUpdate
+components:
+  schemas:
+    cloudAccountRead_defaultResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          cloud_account_uuid:
+            type: string
+            format: uuid
+          cloud_account_cloud_id:
+            type: string
+          cloud_account_provider_id:
+            type: number
+          cloud_account_name:
+            type: string
+          cloud_account_status_id:
+            type: number
+          cloud_account_users:
+            type: array
+            items:
+              type: object
+              properties:
+                user_uuid:
+                  type: string
+                  format: uuid
+    cloudAccountRead_emptyResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "No accounts exist for 00000000-0000-0000-0000-000000000000"
+    cloudAccountUpdate_assignPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: assign
+          example: assign
+        cloud_account:
+          type: object
+          properties:
+            entity_uuid:
+              type: string
+              format: uuid
+              example: 00000000-0000-0000-0000-000000000000
+    cloudAccountUpdate_unassignAllPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: unassign
+          example: unassign
+        cloud_account:
+          type: object
+          properties:
+            entity_uuid:
+              type: string
+              format: uuid
+    cloudAccountUpdate_unassignOnePayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: unassign
+          example: unassign
+        cloud_account:
+          type: object
+          properties:
+            entity_uuid:
+              type: string
+              format: uuid
+            account_uuid:
+              type: string
+              format: uuid
+    cloudAccountUserCreate_eventPayload:
+      type: object
+      properties:
+        cloud_account_user:
+          type: object
+          properties:
+            user_uuid:
+              type: string
+              format: uuid
+            event_uuid:
+              type: string
+              format: uuid
+            access_level:
+              type: number 
+              example: 1
+    cloudAccountUserCreate_teamPayload:
+      type: object
+      properties:
+        cloud_account_user:
+          type: object
+          properties:
+            user_uuid:
+              type: string
+              format: uuid
+            team_uuid:
+              type: string
+              format: uuid
+            access_level:
+              type: number 
+              example: 1
+    cloudAccountUserDelete_eventPayload:
+      type: object
+      properties:
+        cloud_account_user:
+          type: object
+          properties:
+            team_member_uuid:
+              type: string
+              format: uuid
+            event_uuid:
+              type: string
+              format: uuid
+    cloudAccountUserDelete_teamPayload:
+      type: object
+      properties:
+        cloud_account_user:
+          type: object
+          properties:
+            team_member_uuid:
+              type: string
+              format: uuid
+            team_uuid:
+              type: string
+              format: uuid
+    cloudAccountUserUpdate_defaultPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          example: eject
+        cloud_account_user:
+          type: object
+          properties:
+            user_uuid:
+              type: string
+              format: uuid
+            entity_uuid:
+              type: string
+              format: uuid
+    eventRead_defaultResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          event_uuid:
+            type: string
+            format: uuid
+          organization_uuid:
+            type: string
+            format: uuid
+          ts_event_start:
+            type: string
+            format: date-time
+          ts_event_end:
+            type: string
+            format: date-time
+          event_judging_minutes:
+            type: number
+          cloud_accounts_enabled:
+            type: boolean
+          event_details:
+            type: object
+            properties:
+              event_name:
+                type: string
+              event_description:
+                type: string
+          balance_value:
+            type: number
+            format: double
+          event_status_id:
+            type: number
+          event_status_name:
+            type: string
+            example: Ready|Not Ready|In Progress
+          event_type_id:
+            type: number
+          event_type_name:
+            type: string
+          event_team_form_mode_id:
+            type: number
+          event_team_form_mode_name:
+            type: string
+          event_team_form_mode_description:
+            type: string
+          event_is_judging:
+            type: boolean
+          event_time_elapsed:
+            type: boolean
+          banner_image_uuid:
+            type: string
+            format: uuid
+          participant_roles:
+            type: array
+            items:
+              type: object
+              properties:
+                participant_role_id:
+                  type: number
+                  format: int32
+                participant_role_name:
+                  type: string
+                  example: Player|SME|Judge|Admin
+    eventRead_judgingStatusResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          team_uuid:
+            type: string
+            format: uuid
+          judging_status:
+            type: array
+            items:
+              type: object
+              properties:
+                judge_uuid:
+                  type: string
+                  format: uuid
+                team_score_items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      judging_criterion_uuid:
+                        type: string
+                        format: uuid
+                      team_score_item_uuid:
+                        type: string
+                        format: uuid
+                      team_score_item_value:
+                        type: number
+                        format: double
+    eventRead_eventActivityResponse:
+      type: object
+      properties:
+        event_activity:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              activity_type:
+                type: string
+              activity_details:
+                type: object
+                properties:
+                  team_uuid:
+                    type: string
+                    format: uuid
+                  team_analysis_result_source:
+                    type: string
+        event_activity_total_count:
+          type: number
+    organizationInvitation_createInvitationPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: create
+              example: create
+            organization_uuid:
+              type: string
+              format: uuid
+            creator_user_uuid:
+              type: string
+              format: uuid
+            invitation_email:
+              type: string
+              format: email
+    organizationInvitation_claimInvitationPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: claim
+              example: claim
+            organization_uuid:
+              type: string
+              format: uuid
+            organization_domain:
+              type: string
+            organization_invitation_uuid:
+              type: string
+              format: uuid
+            invitation_code:
+              type: string
+            claiming_user_uuid:
+              type: string
+              format: uuid
+    organizationInvitation_uploadInvitationsHeaderPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: upload
+              example: upload
+            organization_uuid:
+              type: string
+              format: uuid
+            creator_user_uuid:
+              type: string
+              format: uuid
+            invitation_file_has_header:
+              type: boolean
+              default: true
+              example: true
+            invitation_file_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  column_name:
+                    type: string
+                  column_value:
+                    type: string
+    organizationInvitation_uploadInvitationsNoHeaderPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: upload
+              example: upload
+            organization_uuid:
+              type: string
+              format: uuid
+            creator_user_uuid:
+              type: string
+              format: uuid
+            invitation_file_has_header:
+              type: boolean
+              default: false
+              example: false
+            invitation_file_data:
+              type: array
+              items:
+                type: array
+                items:
+                  type: string
+    organizationInvitation_claimInvitationResponse:
+        type: object
+        properties:
+          status_code:
+            type: number
+            format: int32
+            example: 200
+          organization_invitation_uuid:
+            type: string
+            format: uuid
+    organizationInvitation_createInvitationResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          invitation:
+            type: object
+            properties:
+              status_code:
+                type: number
+                format: int32
+                example: 200
+              organization_invitation_uuid:
+                type: string
+                format: uuid
+              invitation_code:
+                type: string
+              organization_uuid:
+                type: string
+                format: uuid
+              invitation_email:
+                type: string
+                format: email
+              organization_invitation_status_name:
+                type: string
+              ts_expires:
+                type: string
+                format: date-time
+    organizationInvitation_uploadInvitationsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          invitations:
+            type: array
+            items:
+              type: object
+              properties:
+                invitation:
+                  type: object
+                  properties:
+                    status_code:
+                      type: number
+                      format: int32
+                      example: 200
+                    organization_invitation_uuid:
+                      type: string
+                      format: uuid
+                    invitation_code:
+                      type: string
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    invitation_email:
+                      type: string
+                      format: email
+                    organization_invitation_status_name:
+                      type: string
+                    ts_expires:
+                      type: string
+                      format: date-time
+    teamUpdate_updateTeamPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: update
+          example: update
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            team_details:
+              type: object
+              properties:
+                team_name:
+                  type: string
+                team_description:
+                  type: string
+    teamUpdate_deleteTeamPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: delete
+          example: delete
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+    teamUpdate_addExternalLinkPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: add_external_link
+          example: add_external_link
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            external_link:
+              type: object
+              properties:
+                external_link_type_id:
+                  type: number
+                  format: int32
+                external_link_name:
+                  type: string
+                external_link_url:
+                  type: string
+                  format: uri
+                team_private:
+                  type: boolean
+    teamUpdate_deleteExternalLinkPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: delete_external_link
+          example: delete_external_link
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            external_link:
+              type: object
+              properties:
+                external_link_uuid:
+                  type: string
+                  format: uuid
+    teamUpdate_updateExternalLinkPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: update_external_link
+          example: update_external_link
+        team:
+          type: object
+          properties:
+            team_uuid:
+              type: string
+              format: uuid
+            external_link:
+              type: object
+              properties:
+                external_link_uuid:
+                  type: string
+                  format: uuid
+                external_link_type_id:
+                  type: number
+                  format: int32
+                external_link_name:
+                  type: string
+                external_link_url:
+                  type: string
+                  format: uri
+                team_private:
+                  type: boolean
+    ResponseMetadata:
+      type: object
+      properties:
+        RequestId:
+          type: string
+          format: uuid
+        HTTPStatusCode:
+          type: number
+          format: int32
+          example: 200
+        HTTPHeaders:
+          type: object
+          properties:
+            x-amzn-requestid:
+              type: string
+              format: uuid
+            content-type:
+              type: string
+              example: application/json
+            content-length:
+              type: string
+              example: '2364'
+            date:
+              type: string
+              format: date-time
+        RetryAttempts:
+          type: number
+          format: int32
+        numberOfRecordsUpdated:
+          type: number
+          format: int32
+        records:
+          type: array
+          items:
+            type: object
+            properties:
+              stringValue:
+                type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        **Auth0 JWT**
+        
+        This must be retrieved from the front-end after one logs in, or via a backend service authentication.
+      bearerFormat: JWT
+    stripe-signature:
+      type: apiKey
+      in: header
+      name: stripe-signature
+      description: |
+        **Stripe Signature**
+        
+        Private key signature that Stripe sends via webhook

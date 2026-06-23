@@ -1,0 +1,68 @@
+post:
+  summary: Create or update a new Team or Event feedback
+  tags:
+    - teamEventFeedback
+  description: Creates or updates a new Team or Event feedback item when supplied with its details. Returns `team_event_feedback_uuid`.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Team/Event feedback information
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: create
+              example: create
+            team_event_feedback:
+              type: object
+              properties:
+                participant_uuid:
+                  type: string
+                  format: uuid
+                event_uuid:
+                  type: string
+                  format: uuid
+                team_uuid:
+                  type: string
+                  format: uuid
+                feedback_text:
+                  type: string
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              team_uuid:
+                type: string
+                format: uuid
+              created:
+                type: boolean
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /teamEventFeedbackUpdate
