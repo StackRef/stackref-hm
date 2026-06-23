@@ -7,7 +7,7 @@ import rootReducer from './rootReducer';
 
 const store = configureStore({
   reducer: rootReducer,
-  devTools: process.env.REACT_APP_ENABLE_REDUX_DEV_TOOLS === 'true',
+  devTools: import.meta.env.REACT_APP_ENABLE_REDUX_DEV_TOOLS === 'true',
 });
 
 export const useSelector = useReduxSelector;

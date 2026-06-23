@@ -4,27 +4,33 @@ The StackRef HM web application — the UI used by organizers, judges, and parti
 
 ## Stack
 
-- **React 18** bootstrapped with Create React App, customized via
-  **`react-app-rewired`** + **CRACO**
+- **React 18** built with **[Vite](https://vitejs.dev/)** (`@vitejs/plugin-react`)
 - **MUI 5** (including MUI X Pro date/range pickers) for the component library
 - **Redux Toolkit** for state, **React Router 6** for routing
 - **Auth0** (`@auth0/auth0-spa-js`) for authentication
 - **axios** for REST, a native WebSocket client for realtime
 - FullCalendar, Lexical (rich text), FilePond (uploads), ApexCharts, i18next
+- **Vitest** for tests
+
+> Originally bootstrapped with Create React App; migrated to Vite to drop the
+> unmaintained `react-scripts` toolchain and its vulnerable dependency tree
+> (`npm audit` is now clean). See [Dependency security](#dependency-security).
 
 ## Local development
 
 ```bash
 cp .env.example .env.local     # fill in Auth0 + API + WebSocket values
 npm install
-npm start                      # serves on http://localhost:9003
+npm start                      # Vite dev server on http://localhost:9003
 ```
 
 ## Configuration
 
-All configuration is via `REACT_APP_*` environment variables loaded at build time
-(see [`.env.example`](.env.example)). These are **public** — they ship in the browser
-bundle — so never put true secrets here. Key values:
+All configuration is via `REACT_APP_*` environment variables (see
+[`.env.example`](.env.example)), loaded by Vite from `.env`, `.env.local`, and
+`.env.<mode>` and exposed on `import.meta.env`. These are **public** — they ship in
+the browser bundle — so never put true secrets here. (`REACT_APP_VERSION` is injected
+automatically from `package.json`.) Key values:
 
 | Variable | Purpose |
 |---|---|
@@ -43,8 +49,13 @@ Create whichever you need from `.env.example`.
 ## Build & deploy
 
 ```bash
-npm run build --env=<env>      # reads .env.<env>, outputs to build/
+npm run build                  # production build -> build/
+npm run build --env=dev        # build with .env.dev (mode "dev"); also beta, app
+npm run preview                # serve the production build locally on :9003
 ```
+
+`vite build --mode <env>` loads the matching `.env.<env>` file. Output goes to
+`build/` (kept instead of Vite's default `dist/` so the existing deploy scripts work).
 
 The production deployment served the static `build/` output from **S3 + CloudFront**.
 The `package.json` scripts (`clear`, `copy`, `invalidate`, `deploy`) show that pattern
@@ -55,6 +66,8 @@ sanitization).
 ## Project structure
 
 ```
+index.html         Vite entry HTML (loads /src/index.js)
+vite.config.js     Vite + Vitest configuration
 src/
 ├── pages/         route-level screens
 ├── components/    reusable UI
@@ -65,35 +78,23 @@ src/
 └── routes.js      route table
 ```
 
+JSX lives in `.js` files (a Create React App legacy); `vite.config.js` configures
+esbuild to treat `.js` as JSX so the files don't need renaming. Absolute imports like
+`import x from 'src/config'` resolve via the `src` alias in `vite.config.js`.
+
 ## Dependency security
 
-The runtime/production dependencies are kept patched, and `package.json` includes an
-`overrides` block that force-patches several vulnerable transitive packages
-(`nth-check`, `postcss`, `serialize-javascript`) pinned by the toolchain.
+`npm audit` is **clean** (0 vulnerabilities). Migrating from Create React App to Vite
+removed `react-scripts` and its entire unmaintained, vulnerable build/test dependency
+tree. Runtime dependencies are kept patched.
 
-Any **remaining** Dependabot/`npm audit` alerts come from **`react-scripts`
-(Create React App)**, which is unmaintained and pins old build/test-time
-dependencies (`jest`, `svgo`, `webpack-dev-server`, `workbox`, etc.). These run only
-during build/test and **are not shipped in the browser bundle**, so they carry no
-production-runtime risk. Several have no patched release that is compatible with CRA,
-so they cannot be resolved without changing the toolchain.
-
-Two durable options:
-
-1. **Migrate off CRA to [Vite](https://vitejs.dev/).** This removes `react-scripts`
-   and its entire vulnerable transitive tree, and is the modern standard. Recommended.
-2. **Dismiss the residual alerts** in Dependabot as *"vulnerable code is not actually
-   used"* (build-time-only dev dependencies), documenting why.
-
-After changing dependencies, always verify the app still builds and runs:
+After changing dependencies, verify the app still builds and runs:
 
 ```bash
 npm install
-npm run build --env=<env>
+npm run build
 npm start
 ```
-
-> CRA 5 builds best on **Node 18**. Newer Node versions may require workarounds.
 
 ## Notes
 

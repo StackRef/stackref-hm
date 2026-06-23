@@ -1,1 +1,0 @@
-ignores: ["@babel/*","babel-*","cross-env","eslint","eslint-*","prettier","react-app-rewired","src"]

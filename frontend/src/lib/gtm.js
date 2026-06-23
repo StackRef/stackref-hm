@@ -1,5 +1,5 @@
 const warn = (...args) => {
-  if (process.env.NODE_ENV !== 'development') {
+  if (import.meta.env.PROD) {
     return;
   }
 

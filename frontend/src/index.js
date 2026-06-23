@@ -22,13 +22,12 @@ import { CaptureConsole } from '@sentry/integrations';
 import App from './App';
 
 import reportWebVitals from './reportWebVitals';
-import * as serviceWorker from './serviceWorker';
 import store from './store';
 
 import { LicenseInfo } from '@mui/x-license-pro';
 
 // Disable console logging for production
-if (process.env.NODE_ENV === 'production') {
+if (import.meta.env.PROD) {
   console.log = () => {};
   console.error = () => {};
   console.debug = () => {};
@@ -87,9 +86,6 @@ root.render(
     </HelmetProvider>
   </StrictMode>,
 );
-
-// If you want to enable client cache, register instead.
-serviceWorker.unregister();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

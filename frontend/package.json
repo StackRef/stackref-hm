@@ -4,13 +4,15 @@
   "version": "1.6.9",
   "private": true,
   "homepage": "/",
+  "type": "module",
   "scripts": {
     "lint": "eslint ./src",
     "lint-fix": "eslint --fix ./src",
-    "start": "cross-env PORT=9003 react-app-rewired start",
+    "start": "vite",
+    "dev": "vite",
     "sbom": "npm sbom --sbom-format cyclonedx > sbom.json",
-    "build": "rm -Rf build && sh -ac '. ./.env.${npm_config_env}; react-app-rewired build'",
-    "build:stats": "rm -Rf build && sh -ac '. ./.env.${npm_config_env}; react-app-rewired build --stats'",
+    "build": "vite build --mode ${npm_config_env:-production}",
+    "preview": "vite preview --port 9003",
     "compress": "for i in $(find build/ -type f); do brotli -c $i > $i; done",
     "clear": "aws --profile=acme s3 rm s3://${npm_config_env}.acme.example.com/ --recursive --quiet",
     "copy": "aws --profile=acme s3 cp build/ s3://${npm_config_env}.acme.example.com --only-show-errors --recursive",
@@ -19,30 +21,7 @@
     "invalidate:beta": "CF_DIST_ID='E2XFIR7UOHVFK7' npm run invalidate",
     "invalidate:app": "CF_DIST_ID='E1NTJYPM82WMB7' npm run invalidate",
     "deploy": "if ! [[ $npm_config_env =~ ^('dev'|'beta'|'app')$ ]]; then echo '>> NO/INVALID ENV SET. USE \"npm run deploy --env=(dev|beta|app)\". EXITING.'; exit 1; else npm run sbom && npm run build && npm run clear && npm run copy && npm run invalidate:${npm_config_env}; fi",
-    "test": "react-app-rewired test"
-  },
-  "loader": "css-loader?url=false",
-  "babel": {
-    "presets": [
-      "@babel/preset-react"
-    ],
-    "plugins": [
-      [
-        "babel-plugin-import",
-        {
-          "libraryName": "@mui/icons-material",
-          "libraryDirectory": "",
-          "camel2DashComponentName": false
-        },
-        "icons"
-      ]
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "test": "vitest run --passWithNoTests"
   },
   "browserslist": {
     "production": [
@@ -55,12 +34,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "comment:overrides": "Force-patch vulnerable transitive deps pinned by the (unmaintained) react-scripts/CRA toolchain. These are build-time only and API-compatible with the pinned majors. The durable fix is migrating off react-scripts (see frontend/README.md).",
-  "overrides": {
-    "nth-check": "^2.1.1",
-    "postcss": "^8.4.31",
-    "serialize-javascript": "^6.0.2"
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^2.1.3",
@@ -147,21 +120,17 @@
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@babel/eslint-parser": "^7.24.7",
-    "@babel/preset-react": "^7.24.7",
     "@testing-library/jest-dom": "^6.4.6",
+    "@vitejs/plugin-react": "^4.3.4",
     "@welldone-software/why-did-you-render": "^8.0.3",
-    "babel-plugin-import": "^1.13.8",
-    "babel-plugin-module-resolver": "^5.0.2",
-    "customize-cra": "^1.0.0",
     "eslint": "^8.57.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "react-app-rewired": "^2.2.1",
-    "react-scripts": "^5.0.1",
-    "webpack": "^5.92.1",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "jsdom": "^25.0.1",
+    "vite": "^6.0.7",
+    "vitest": "^4.1.9"
   }
 }
