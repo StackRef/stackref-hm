@@ -1,7 +1,5 @@
 <div align="center">
 
-<!-- TODO: drop the StackRef logo here. Place the file at assets/logo.png (or .svg)
-     and update the src below. A ~400px-wide horizontal logo works well. -->
 <img src="assets/logo.png" alt="StackRef Hackathon Manager" width="420" />
 
 # StackRef Hackathon Manager (StackRef HM)
@@ -177,6 +175,10 @@ open a private security report rather than a public issue.
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). The cardinal rule: **never commit secrets.**
+
+## Authors
+
+StackRef HM was created by Keith McDuffee. See [AUTHORS](AUTHORS).
 
 ## License
 
