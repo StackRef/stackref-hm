@@ -1,0 +1,207 @@
+regions:
+- global
+- us-east-1
+
+account-blocklist:
+- "000000000000" # stackref-core
+- "000000000000" # stackref-analysis-codescans
+- "000000000000" # stackref-marketplace
+
+accounts:
+  "000000000000": # stackref-team-001
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-002
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-003
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-004
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-005
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-006
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-007
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-008
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-009
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-010
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-011
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-012
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-013
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-014
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-015
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-016
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-017
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-018
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-019
+    presets:
+    - "admin"
+  "000000000000": # stackref-team-020
+    presets:
+    - "admin"
+
+resource-types:
+  excludes:
+  - ConfigServiceConfigurationRecorder
+  - ConfigServiceConfigRule
+  - ConfigServiceDeliveryChannel
+  - IAMSAMLProvider
+
+feature-flags:
+  disable-deletion-protection:
+    RDSInstance: true
+    EC2Instance: true
+    CloudformationStack: true
+  force-delete-lightsail-addons: true
+
+presets:
+  admin:
+    filters:
+      CloudTrailTrail:
+      - stackref-core
+      CloudWatchEventsRule:
+      - "Rule: SR-DynamoDBEvents"
+      - "Rule: SR-EC2ResourceStateChangeEvents"
+      - "Rule: SR-ElastiCacheEvents"
+      - "Rule: SR-LambdaEvents"
+      - "Rule: SR-RDSInstanceEvents"
+      - "Rule: SR-TagEvents"
+      CloudWatchEventsTarget:
+      - "Rule: SR-DynamoDBEvents Target ID: SR-DynamoDBEvents"
+      - "Rule: SR-EC2ResourceStateChangeEvents Target ID: SR-EC2StateChangeEvents"
+      - "Rule: SR-ElastiCacheEvents Target ID: SR-ElastiCacheEvents"
+      - "Rule: SR-LambdaEvents Target ID: SR-LambdaEvents"
+      - "Rule: SR-RDSInstanceEvents Target ID: SR-RDSInstanceEvents"
+      - "Rule: SR-TagEvents Target ID: SR-TagEvents"
+      EC2DHCPOption:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      EC2InternetGateway:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      EC2InternetGatewayAttachment:
+      - property: tag:igw:stackref:admin
+        value: "true"
+      - property: tag:igw:stackref:infra
+        value: "true"
+      EC2NetworkACL:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      EC2RouteTable:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      EC2SecurityGroup:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      EC2Subnet:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      EC2VPC:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      IAMGroup:
+      - sr_team_leaders
+      - sr_team_players
+      IAMGroupPolicyAttachment:
+      - property: RoleName
+        value: "sr_team_leaders"
+      - property: RoleName
+        value: "sr_team_players"
+      IAMInstanceProfile:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      IAMInstanceProfileRole:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      IAMPolicy:
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      IAMRole:
+      - "OrganizationAccountAccessRole"
+      - "SR-PB-Team"
+      - property: Path
+        value: "/aws-reserved/sso.amazonaws.com/"
+      - property: tag:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      IAMRolePolicy:
+      - property: PolicyName
+        type: regex
+        value: "^AWSReservedSSO.*"
+      - property: Path
+        value: "/aws-reserved/sso.amazonaws.com/"
+      - property: role:Path
+        value: "/aws-reserved/sso.amazonaws.com/"
+      - "OrganizationAccountAccessRole -> AdministratorAccess"
+      - "SR-PB-Team -> SR-PB-Team"
+      - property: tag:role:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      IAMRolePolicyAttachment:
+      - property: RoleName
+        type: regex
+        value: "^AWSReservedSSO.*"
+      - property: tag:role:stackref:admin
+        value: "true"
+      - property: tag:stackref:infra
+        value: "true"
+      OpsWorksUserProfile:
+      - type: regex
+        value: "assumed-role/OrganizationAccountAccessRole"
+      S3Bucket:
+      - property: tag:stackref:admin
+        value: "true"
+      S3Object:
+      - type: glob
+        value: "s3://stackref-team-*-us-east-1-umpire/AWSLogs/*/Config/ConfigWritabilityCheckFile"

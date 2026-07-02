@@ -1,0 +1,200 @@
+get:
+  summary: Retrieve details of one or many Events
+  tags:
+    - event
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: action
+      in: query
+      description: Alternate action to perform (i.e., 'judging_status')
+      required: false
+      schema:
+        type: string
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: organization_uuid
+      in: query
+      description: |
+        Organization UUID
+
+        Only required if the Bearer token is for a User only with grants to Read that Organization's details
+      required: false
+      schema:
+        type: string
+        format: uuid
+        default: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+    - name: event_uuid
+      in: query
+      description: |
+        Event UUID
+
+        Only required if the Bearer token is for a User only with grants to Read that Event's details
+      required: false
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/eventRead_defaultResponse'
+              - $ref: '#/components/schemas/eventRead_judgingStatusResponse'
+              - $ref: '#/components/schemas/eventRead_eventActivityResponse'
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /eventRead
+components:
+  schemas:
+    eventRead_defaultResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          event_uuid:
+            type: string
+            format: uuid
+          organization_uuid:
+            type: string
+            format: uuid
+          ts_event_start:
+            type: string
+            format: date-time
+          ts_event_end:
+            type: string
+            format: date-time
+          event_judging_minutes:
+            type: number
+          cloud_accounts_enabled:
+            type: boolean
+          event_details:
+            type: object
+            properties:
+              event_name:
+                type: string
+              event_description:
+                type: string
+          balance_value:
+            type: number
+            format: double
+          event_status_id:
+            type: number
+          event_status_name:
+            type: string
+            examples:
+              ready:
+                value: Ready
+              not_ready:
+                value: Not Ready
+              in_progress:
+                value: In Progress
+          event_type_id:
+            type: number
+          event_type_name:
+            type: string
+          event_team_form_mode_id:
+            type: number
+          event_team_form_mode_name:
+            type: string
+          event_team_form_mode_description:
+            type: string
+          event_is_judging:
+            type: boolean
+          event_time_elapsed:
+            type: boolean
+          banner_image_uuid:
+            type: string
+            format: uuid
+          participant_roles:
+            type: array
+            items:
+              type: object
+              properties:
+                participant_role_id:
+                  type: number
+                  format: int32
+                participant_role_name:
+                  type: string
+                  examples:
+                    player:
+                      value: Player
+                    sme:
+                      value: SME
+                    judge:
+                      value: Judge
+                    admin:
+                      value: Admin
+    eventRead_judgingStatusResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          team_uuid:
+            type: string
+            format: uuid
+          judging_status:
+            type: array
+            items:
+              type: object
+              properties:
+                judge_uuid:
+                  type: string
+                  format: uuid
+                team_score_items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      judging_criterion_uuid:
+                        type: string
+                        format: uuid
+                      team_score_item_uuid:
+                        type: string
+                        format: uuid
+                      team_score_item_value:
+                        type: number
+                        format: double
+    eventRead_eventActivityResponse:
+      type: object
+      properties:
+        event_activity:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              activity_type:
+                type: string
+              activity_details:
+                type: object
+                properties:
+                  team_uuid:
+                    type: string
+                    format: uuid
+                  team_analysis_result_source:
+                    type: string
+        event_activity_total_count:
+          type: number

@@ -1,0 +1,40 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /playbook",
+  "rawPath": "/playbook",
+  "rawQueryString": "organization_id=12345",
+  "headers": {
+    "accept": "*/*",
+    "content-length": "42",
+    "content-type": "application/x-www-form-urlencoded",
+    "host": "iq9w7bjcsd.execute-api.us-east-1.amazonaws.com",
+    "user-agent": "curl/7.74.0",
+    "x-amzn-trace-id": "Root=1-60779010-3a9ac3814020d4475ed37c16",
+    "x-forwarded-for": "203.0.113.1",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "queryStringParameters": {
+    "organization_id": "12345"
+  },
+  "requestContext": {
+    "accountId": "000000000000",
+    "apiId": "iq9w7bjcsd",
+    "domainName": "iq9w7bjcsd.execute-api.us-east-1.amazonaws.com",
+    "domainPrefix": "iq9w7bjcsd",
+    "http": {
+      "method": "POST",
+      "path": "/playbook",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "203.0.113.1",
+      "userAgent": "curl/7.74.0"
+    },
+    "requestId": "dzNyhg7OIAMEM_A=",
+    "routeKey": "POST /playbook",
+    "stage": "$default",
+    "time": "15/Apr/2021:01:00:00 +0000",
+    "timeEpoch": 1618448400033
+  },
+  "body": "eyJmbGFncyI6W3siZmxhZyI6eyJpZCI6MSwic3RhdHVzIjoyMDB9fSx7ImZsYWciOnsiaWQiOjIsInN0YXR1cyI6MjAwfX1dfQ==",
+  "isBase64Encoded": true
+}

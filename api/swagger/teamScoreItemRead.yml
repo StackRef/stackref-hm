@@ -1,0 +1,104 @@
+get:
+  summary: Retrieve details of one or many Team's Score Items
+  tags:
+    - teamScoreItem
+  description: Returns one or more team_score_items for one or more Teams
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: team_uuid
+      in: query
+      description: |
+        Team UUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: team_score_item_uuid
+      in: query
+      description: |
+        Team Score Item UUID
+      required: false
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              team_score_items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    team_score_item_uuid:
+                      type: string
+                      format: uuid
+                    team_score_item_value:
+                      type: number
+                      format: double
+                    judge_uuid:
+                      type: string
+                      format: uuid
+                    judging_criterion_uuid:
+                      type: string
+                      format: uuid
+                    judging_criterion_details:
+                      type: object
+                      properties:
+                        criterion_name:
+                          type: string
+                        criterion_summary:
+                          type: string
+                        criterion_description:
+                          type: string
+                    judging_criterion_weight:
+                      type: number
+                      format: int32
+                    weighted_score:
+                      type: number
+                      format: double
+                    judging_criterion_category_name:
+                      type: string
+                    judging_criterion_category_icon:
+                      type: string
+              team_score_category_totals:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    judging_criterion_category_id:
+                      type: number
+                      format: int32
+                    category_score_total:
+                      type: number
+                      format: double
+                    judging_criterion_category_name:
+                      type: string
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /teamScoreItemRead

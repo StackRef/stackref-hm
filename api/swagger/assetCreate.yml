@@ -1,0 +1,96 @@
+post:
+  summary: Create an asset such as an image, invitation list, etc.
+  externalDocs:
+    description: Documentation
+    url: https://example.atlassian.net/wiki/home
+  tags:
+    - asset
+  description: Used for uploading or creating assets stored in S3 and referenced in DB
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: asset_entity_uuid
+      in: query
+      description: |
+        Entity UUID (event, team, etc.) owning the Asset
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: asset_type
+      in: query
+      description: |
+        Asset type being added (avatar_image, banner_image, invitation_list, etc.)
+      required: true
+      schema:
+        type: string
+      examples:
+        avatar_image:
+          value: avatar_image
+        banner_image:
+          value: banner_image
+        invitation_list:
+          value: invitation_list
+  requestBody:
+    description: Asset Create payload (JSON object or multipart)
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            filepond:
+              type: string
+              format: binary
+              contentMediaType: application/octet-stream
+              description: File content
+          description: Asset Create payload (multipart)
+      application/json:
+        schema:
+          type: object
+          properties:
+            entity_name:
+              type: string
+              description: Name of Team, Event, etc. used as basis for AI-generated image
+          description: Asset Create payload (JSON)
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                account_uuid:
+                  type: string
+                  format: uuid
+                account_cloud_id:
+                  type: string
+                account_name:
+                  type: string
+                account_owner_uuid:
+                  type: string
+                  format: uuid
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /assetCreate

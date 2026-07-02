@@ -1,0 +1,63 @@
+post:
+  summary: Delete a previously-stored asset such as an image, invitation list, etc.
+  tags:
+    - asset
+  description: Used for deleting uploaded assets from the DB and S3
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Asset Delete payload
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            asset_entity_uuid:
+              type: string
+              format: uuid
+            asset_uuid:
+              type: string
+              format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                account_uuid:
+                  type: string
+                  format: uuid
+                account_cloud_id:
+                  type: string
+                account_name:
+                  type: string
+                account_owner_uuid:
+                  type: string
+                  format: uuid
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /assetDelete

@@ -1,0 +1,83 @@
+get:
+  summary: Retrieve details of one or many Users
+  tags:
+    - user
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: organization_uuid
+      in: query
+      description: Organization UUID
+      required: false
+      schema:
+        type: string
+        format: uuid
+        example: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+        default: c2b55dce-c710-4d8e-9ab5-cec08250a5bc
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                user_uuid:
+                  type: string
+                  format: uuid
+                email_address:
+                  type: string
+                  format: email
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                phone:
+                  type: string
+                  example: (508) 867-5309
+                registered:
+                  type: boolean
+                tags:
+                  type: object
+                  properties:
+                    skills:
+                      type: array
+                      items:
+                        type: string
+                      example: [python,java,mysql]
+                user_roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      user_role_id:
+                        type: number
+                        format: int32
+                      user_role_name:
+                        type: string
+                        example: Standard
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /userRead

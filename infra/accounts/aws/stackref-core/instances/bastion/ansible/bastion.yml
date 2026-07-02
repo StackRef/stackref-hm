@@ -1,0 +1,19 @@
+- hosts: all
+  remote_user:
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+    - name: Copy sshd_config file into place
+      ansible.builtin.copy:
+        src: files/sshd_config
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: Restart ssh service
+      ansible.builtin.service:
+        name: sshd
+        state: restarted

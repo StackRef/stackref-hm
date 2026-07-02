@@ -1,0 +1,11 @@
+# change this text to trigger re-pull of packages
+botocore~=1.33.12
+boto3~=1.33.12
+cryptography~=41.0.7
+elasticache-auto-discovery~=1.0.0
+numpy~=1.26.2
+psycopg[binary]~=3.1.12
+pydash~=7.0.6
+PyJWT~=2.8.0
+PyJWT[crypto]~=2.8.0
+pymemcache~=4.0.0

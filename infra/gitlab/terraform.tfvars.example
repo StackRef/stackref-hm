@@ -1,0 +1,112 @@
+gitlab_runner_id = "i-0394dfe7741576e35"
+projects = {
+  api_lambda = {
+    name                   = "API Lambda"
+    path                   = "api-lambda"
+    description            = "Lambda functions for the API"
+    shared_runners_enabled = true
+  }
+  auth0_configuration = {
+    name                   = "Auth0 Configuration"
+    path                   = "auth0-configuration"
+    description            = "Auth0 Configuration"
+    shared_runners_enabled = true
+  }
+  coach = {
+    name                   = "Coach"
+    path                   = "coach"
+    description            = "Coach agent"
+    shared_runners_enabled = false
+  }
+  primary_frontend = {
+    name                   = "Primary Frontend"
+    path                   = "primary-frontend"
+    description            = "Primary Frontend"
+    shared_runners_enabled = true
+  }
+  resource_images = {
+    name                   = "Resource Images"
+    path                   = "resource-images"
+    description            = "Baseline machine images and Docker service images for team deployments and active services"
+    shared_runners_enabled = true
+  }
+  terraform = {
+    name                   = "terraform"
+    path                   = "terraform"
+    description            = "Terraform configurations and modules"
+    shared_runners_enabled = true
+  }
+  tator = {
+    name                   = "Tator"
+    path                   = "tator"
+    description            = "Websocket server that the React UI connects to in lieu of continuous polling loops to the API"
+    shared_runners_enabled = true
+  },
+  database_ddls = {
+    name                   = "Database DDLs"
+    path                   = "database-ddls"
+    description            = "Database DDLs"
+    shared_runners_enabled = true
+  },
+  cleanup_crew = {
+    name                   = "Cleanup Crew"
+    path                   = "cleanup-crew"
+    description            = "Runs aws-nuke on account(s) to remove non-StackRef resources"
+    shared_runners_enabled = true
+  },
+  kickoff = {
+    name                   = "Kickoff"
+    path                   = "kickoff"
+    description            = "Organizes, starts, and stops Events executed via CloudWatch Event Bridge scheduled events"
+    shared_runners_enabled = true
+  },
+  public_documentation = {
+    name                   = "Public Documentation"
+    path                   = "public-documentation"
+    description            = "Public documentation pages for use with GitBook"
+    shared_runners_enabled = true
+  }
+  stackref_home = {
+    name                   = "StackRef Home"
+    path                   = "stackref-home"
+    description            = "Home page for example.com"
+    shared_runners_enabled = true
+  },
+  cossell_ai = {
+    name                   = "Cossell AI"
+    path                   = "cossell-ai"
+    description            = "StackRef Cossell AI"
+    shared_runners_enabled = true
+  },
+  umpire = {
+    name                   = "Umpire"
+    path                   = "umpire"
+    description            = "Reads AWS Config and CloudTrail actions in accounts for resource permission checking, granting, and denying"
+    shared_runners_enabled = true
+  },
+  shot_clock = {
+    name                   = "Shot Clock"
+    path                   = "shot-clock"
+    description            = "Any non-kickoff-related, scheduled events that need to run. Processes AWS metering usage, etc."
+    shared_runners_enabled = true
+  },
+  search_indexer = {
+    name                   = "Search Indexer"
+    path                   = "search-indexer"
+    description            = "Scripts and utilities for initiating search engine indexing"
+    shared_runners_enabled = true
+  }
+}
+
+users = {
+  demo-stackref = {
+    name               = "Jordan Avery"
+    username           = "demo-stackref"
+    group_access_level = "owner"
+  }
+  #  tmorgan3 = {
+  #    name               = "Taylor Morgan"
+  #    username           = "tmorgan3"
+  #    group_access_level = "developer"
+  #  }
+}

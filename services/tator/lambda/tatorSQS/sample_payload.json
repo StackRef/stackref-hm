@@ -1,0 +1,31 @@
+{
+  "Records": [
+    {
+      "messageId": "34a9fddf-398e-48bf-9466-92ebb0511bb3",
+      "receiptHandle": "AQEBcfbZM5OqX5wo8IQsFmPqJB9Vt39BaVDnGgFXhTf5MYrT3PFISEjOJNnZr7Hg58pq/qi+PBqUvK5SvDZNAZoX7gTohwR5BMGvUd3uE5Cv9039i0ytTUygIUuqI1qVs9T4ZQblCuhDonB3Rxe8hyvPfcVTsPCCcHm7g9OZOnH70tanNrXieU9qPJBEe7i+lMbtJotz9F82tZBQw2Ophk42PCc97wh8ZNRpx/u2x46SrMOPHXy+orvGrSAOlldP/GzzXqaSfS7dr+CO9RXWOYgy07NVQId8af1tjIYPtuqxX0M=",
+      "body": "This is test body",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1674011215622",
+        "SequenceNumber": "18875290944908784896",
+        "MessageGroupId": "dbe82220-e09c-41ad-bb28-9c804c3e0747",
+        "SenderId": "AIDASIEVCZGOGRVE4HTFG",
+        "MessageDeduplicationId": "dbe82220-e09c-41ad-bb28-9c804c3e0747",
+        "ApproximateFirstReceiveTimestamp": "1674011215622"
+      },
+      "messageAttributes": {
+        "Attribute1": {
+          "stringValue": "Attribute1Value",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        }
+      },
+      "md5OfMessageAttributes": "3a3e894336550aa605ea8d6dfc0f6682",
+      "md5OfBody": "291f72e6751ee7519cccfa15719cd99c",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:000000000000:tator-ws-queue-dev.fifo",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}

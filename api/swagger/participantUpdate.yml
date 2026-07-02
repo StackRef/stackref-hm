@@ -1,0 +1,58 @@
+post:
+  summary: Update an Event Participant on the platform
+  tags:
+    - participant
+  description: Updates an Event Participant when supplied with its details. Returns `participant_uuid`.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Participant update information
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: delete
+              example: delete
+            participant:
+              type: object
+              properties:
+                participant_uuid:
+                  type: string
+                  format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              participant_uuid:
+                type: string
+                format: uuid
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /participantUpdate

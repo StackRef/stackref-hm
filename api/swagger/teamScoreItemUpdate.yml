@@ -1,0 +1,71 @@
+post:
+  summary: Update/Create a Team score item
+  tags:
+    - teamScoreItem
+  description: Updates or creates a Team Score Item when supplied with details. Returns `team_score_item_uuid`.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Team Score Item update information
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: create
+              example: create
+            team_score_item:
+              type: object
+              properties:
+                team_uuid:
+                  type: string
+                  format: uuid
+                judge_uuid:
+                  type: string
+                  format: uuid
+                judging_criterion_uuid:
+                  type: string
+                  format: uuid
+                team_score_item_value:
+                  type: number
+                  format: double
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: number
+                format: int32
+                example: 200
+              team_score_item_uuid:
+                type: string
+                format: uuid
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /teamScoreItemUpdate

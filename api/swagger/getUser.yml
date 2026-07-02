@@ -1,0 +1,100 @@
+post:
+  summary: Method for to read User information from StackRef database
+  tags:
+    - user
+  description: Retrieves User information details
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: User information payload. Specify only one of `auth_provider_id` or `user_uuid` but not both.
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                auth_provider_id:
+                  type: string
+                user_uuid:
+                  type: string
+                  format: uuid
+        examples:
+          authProvider:
+            summary: Using Auth Provider ID
+            value:
+              user:
+                auth_provider_id: google-oauth2|107264207147211635796
+          userUuid:
+            summary: Using User UUID
+            value:
+              user:
+                user_uuid: 507c3ad0-bfb8-4ae6-9bb0-e9ee047730b1
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                user_uuid:
+                  type: string
+                  format: uuid
+                organization_uuid:
+                  type: string
+                  format: uuid
+                organization_name:
+                  type: string
+                email_verified:
+                  type: boolean
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                registered:
+                  type: boolean
+                ts_last_login:
+                  type: string
+                  format: date-time
+                tags:
+                  type: object
+                  properties:
+                    skills:
+                      type: array
+                      items:
+                        type: string
+                      example: [python,java,mysql]
+                settings:
+                  type: object
+                user_role_grants:
+                  type: array
+                  items:
+                    type: string
+                  example: [ui,organization_read,organization_write]
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /getUser

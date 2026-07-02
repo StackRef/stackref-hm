@@ -1,0 +1,99 @@
+get:
+  summary: Retrieve Team kanban items
+  tags:
+    - kanban
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: team_uuid
+      in: query
+      description: Team UUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              kanban_item_statuses:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kanban_item_status_id:
+                      type: number
+                    kanban_item_status_name:
+                      type: string
+                    kanban_item_status_description:
+                      type: string
+              kanban_items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kanban_item_uuid:
+                      type: string
+                      format: uuid
+                    kanban_item_status_id:
+                      type: number
+                    kanban_item_priority:
+                      type: number
+                    kanban_item_issuer:
+                      type: object
+                      properties:
+                        team_member_uuid:
+                          type: string
+                          format: uuid
+                        first_name:
+                          type: string
+                        last_name:
+                          type: string
+                        email_address:
+                          type: string
+                          format: email
+                    kanban_item_owner:
+                      type: object
+                      properties:
+                        team_member_uuid:
+                          type: string
+                          format: uuid
+                        first_name:
+                          type: string
+                        last_name:
+                          type: string
+                        email_address:
+                          type: string
+                          format: email
+                    kanban_item_details:
+                      type: object
+                    ts_modified:
+                      type: string
+                      format: date-time
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /kanbanRead

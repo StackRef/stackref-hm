@@ -1,0 +1,28 @@
+provider "aws" {
+  region  = var.aws_region
+
+  assume_role {
+    role_arn = "arn:aws:iam::${var.team_account_number}:role/OrganizationAccountAccessRole"
+  }
+}
+
+terraform {
+  backend "s3" {
+    region  = "us-east-1"
+    bucket  = "example-terraform-state-core"
+    key     = "accounts/stackref-teams/%TEAM_ACCOUNT_NUMBER%/event/terraform.tfstate"
+  }
+}
+
+data "aws_caller_identity" "current" {
+}
+
+data "terraform_remote_state" "organization" {
+  backend = "s3"
+
+  config = {
+    region  = "us-east-1"
+    bucket  = "example-terraform-state-core"
+    key     = "organization/terraform.tfstate"
+  }
+}

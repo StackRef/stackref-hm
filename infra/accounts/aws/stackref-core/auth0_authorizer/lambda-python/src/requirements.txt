@@ -1,0 +1,4 @@
+auth0-python~=3.19.0
+#newrelic~=7.4.0
+PyJWT~=2.4.0
+PyJWT[crypto]~=2.4.0

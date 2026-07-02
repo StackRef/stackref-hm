@@ -1,0 +1,46 @@
+post:
+  summary: Update a Coin Bank on the platform
+  tags:
+    - stackCash
+  description: Used for moving StackRef Coin into, out-of, or between accounts
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Coin Bank transaction
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: transaction
+              example: transaction
+            transaction:
+              type: object
+              properties:
+                sending_entity_uuid:
+                  type: string
+                  format: uuid
+                  example: 00000000-0000-0000-0000-000000000000
+                receiving_entity_uuid:
+                  type: string
+                  format: uuid
+                transaction_value:
+                  type: number
+                  format: double
+  responses:
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /coinBankUpdate

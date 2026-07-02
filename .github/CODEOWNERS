@@ -1,0 +1,8 @@
+# Code owners for StackRef HM.
+#
+# Every PR that touches matching paths automatically requests a review from the
+# owner(s) below. Combined with the branch-protection rule "Require review from
+# Code Owners", this guarantees you review every change before it can merge.
+
+# Default owner for everything in the repo
+*       @gudlyf

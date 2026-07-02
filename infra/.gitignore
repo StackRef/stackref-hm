@@ -1,0 +1,8 @@
+.terraform
+terraform.tfstate*
+.terraform.lock.hcl
+.infracost
+terraform.secret.tfvars
+.DS_Store
+payload.zip
+.iac-data

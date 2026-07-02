@@ -1,0 +1,140 @@
+{
+  "group_details": [
+    {
+      "aws": [
+        {
+          "name": "Administrators"
+        },
+        {
+          "name": "AWSServiceCatalogAdmins"
+        },
+        {
+          "name": "AWSAccountFactory"
+        },
+        {
+          "name": "ReadOnly"
+        },
+        {
+          "name": "TeamWrite-stackref-team-001"
+        },
+        {
+          "name": "TeamWrite-stackref-team-002"
+        },
+        {
+          "name": "TeamWrite-stackref-team-003"
+        },
+        {
+          "name": "TeamWrite-stackref-team-004"
+        },
+        {
+          "name": "TeamWrite-stackref-team-005"
+        },
+        {
+          "name": "TeamWrite-stackref-team-006"
+        },
+        {
+          "name": "TeamWrite-stackref-team-007"
+        },
+        {
+          "name": "TeamWrite-stackref-team-008"
+        },
+        {
+          "name": "TeamWrite-stackref-team-009"
+        },
+        {
+          "name": "TeamWrite-stackref-team-010"
+        },
+        {
+          "name": "TeamWrite-stackref-team-011"
+        },
+        {
+          "name": "TeamWrite-stackref-team-012"
+        },
+        {
+          "name": "TeamWrite-stackref-team-013"
+        },
+        {
+          "name": "TeamWrite-stackref-team-014"
+        },
+        {
+          "name": "TeamWrite-stackref-team-015"
+        },
+        {
+          "name": "TeamWrite-stackref-team-016"
+        },
+        {
+          "name": "TeamWrite-stackref-team-017"
+        },
+        {
+          "name": "TeamWrite-stackref-team-018"
+        },
+        {
+          "name": "TeamWrite-stackref-team-019"
+        },
+        {
+          "name": "TeamWrite-stackref-team-020"
+        }
+      ]
+    }
+  ],
+  "user_details": [
+    {
+      "general": {
+        "uid": "jordanm@example.net",
+        "firstname": "Jordan",
+        "lastname": "Avery",
+        "email": "jordanm@example.net"
+      },
+      "aws": {
+        "state": "present",
+        "groups": [
+          "TeamWrite-stackref-team-002"
+        ]
+      }
+    },
+    {
+      "general": {
+        "uid": "stackref-core@example.com",
+        "firstname": "StackRef",
+        "lastname": "Core",
+        "email": "stackref-core@example.com"
+      },
+      "aws": {
+        "state": "present",
+        "groups": [
+          "Administrators"
+        ]
+      }
+    },
+    {
+      "general": {
+        "uid": "tmorgan@example.com",
+        "firstname": "Taylor",
+        "lastname": "Morgan",
+        "email": "tmorgan@example.com"
+      },
+      "aws": {
+        "state": "absent",
+        "groups": [
+          "Administrators"
+        ]
+      }
+    },
+    {
+      "general": {
+        "uid": "admin@example.com",
+        "firstname": "Jordan",
+        "lastname": "Avery",
+        "email": "admin@example.com"
+      },
+      "aws": {
+        "state": "present",
+        "groups": [
+          "Administrators",
+          "AWSServiceCatalogAdmins",
+          "TeamWrite-stackref-team-002"
+        ]
+      }
+    }
+  ]
+}

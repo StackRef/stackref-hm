@@ -1,0 +1,75 @@
+post:
+  summary: Update a Team kanban on the platform
+  tags:
+    - kanban
+  description: Updates existing Team kaban items when supplied with its details. Returns status code.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Kanban update information
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            action:
+              type: string
+              default: update
+              example: update
+            kanban_item:
+              type: object
+              properties:
+                team_uuid:
+                  type: string
+                  format: uuid
+                kanban_item_uuid:
+                  type: string
+                  format: uuid
+                kanban_item_status_id:
+                  type: number
+                kanban_item_priority:
+                  type: number
+                kanban_item_issuer_uuid:
+                  type: string
+                  format: uuid
+                kanban_item_owner_uuid:
+                  type: string
+                  format: uuid
+                kanban_item_details:
+                  type: object
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              organization_uuid:
+                type: string
+                format: uuid
+              updated:
+                type: boolean
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /kanbanUpdate

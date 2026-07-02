@@ -1,0 +1,104 @@
+post:
+  summary: Update a Cloud Account on the platform
+  tags:
+    - cloudAccount
+  description: Used for assigning/unassigning cloud accounts to teams, etc.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: Cloud Account payload
+    required: true
+    content:
+      application/json:
+        schema:
+          oneOf:
+            - $ref: '#/components/schemas/cloudAccountUpdate_assignPayload'
+            - $ref: '#/components/schemas/cloudAccountUpdate_unassignAllPayload'
+            - $ref: '#/components/schemas/cloudAccountUpdate_unassignOnePayload'
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                account_uuid:
+                  type: string
+                  format: uuid
+                account_cloud_id:
+                  type: string
+                account_name:
+                  type: string
+                account_owner_uuid:
+                  type: string
+                  format: uuid
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /cloudAccountUpdate
+components:
+  schemas:
+    cloudAccountUpdate_assignPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: assign
+          example: assign
+        cloud_account:
+          type: object
+          properties:
+            entity_uuid:
+              type: string
+              format: uuid
+              example: 00000000-0000-0000-0000-000000000000
+    cloudAccountUpdate_unassignAllPayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: unassign
+          example: unassign
+        cloud_account:
+          type: object
+          properties:
+            entity_uuid:
+              type: string
+              format: uuid
+    cloudAccountUpdate_unassignOnePayload:
+      type: object
+      properties:
+        action:
+          type: string
+          default: unassign
+          example: unassign
+        cloud_account:
+          type: object
+          properties:
+            entity_uuid:
+              type: string
+              format: uuid
+            account_uuid:
+              type: string
+              format: uuid

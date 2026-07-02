@@ -1,0 +1,67 @@
+stackref_com_r53_records = {
+  "verify.squarespace.com" = {
+    name    = "y4wbzlht8g2hwf32mpxh.example.com"
+    type    = "CNAME"
+    ttl     = 86400
+    records = ["verify.squarespace.com"]
+  },
+  "mandrill._domainkey" = {
+    name    = "mandrill._domainkey.example.com"
+    type    = "TXT"
+    ttl     = 86400
+    records = ["v=DKIM1; k=rsa; p=YOUR_DKIM_PUBLIC_KEY;"]
+  },
+  "auth" = {
+    name    = "auth.example.com"
+    type    = "CNAME"
+    ttl     = 300
+    records = ["example.us.auth0.com"]
+  },
+  "docs" = {
+    name    = "docs.example.com"
+    type    = "CNAME"
+    ttl     = 600
+    records = ["af4b355a0c-hosting.gitbook.io"]
+  },
+  "whistle" = {
+    name    = "whistle.example.com"
+    type    = "CNAME"
+    ttl     = 600
+    records = ["example.github.io"]
+  },
+  "awsmp" = {
+    name = "awsmp.example.com"
+    type = "NS"
+    ttl  = 86400
+    records = [
+      "ns-1423.awsdns-49.org",
+      "ns-1998.awsdns-57.co.uk",
+      "ns-463.awsdns-57.com",
+      "ns-665.awsdns-19.net"
+    ]
+  },
+  "mta-sts" = {
+    name    = "mta-sts.example.com"
+    type    = "CNAME"
+    ttl     = 600
+    records = ["app.example.com"]
+  },
+}
+
+stackref_io_r53_records = {
+  "verify.squarespace.com" = {
+    name    = "3y8std74rwpaznb5pn3t.example.io"
+    type    = "CNAME"
+    ttl     = 86400
+    records = ["verify.squarespace.com"]
+  }
+}
+
+s6f_io_r53_records = {
+  "verify.squarespace.com" = {
+    name    = "bcebds5452xr5y92ty57.s6f.io"
+    type    = "CNAME"
+    ttl     = 86400
+    records = ["verify.squarespace.com"]
+  }
+}

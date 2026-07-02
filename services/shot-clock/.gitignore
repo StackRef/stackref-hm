@@ -1,0 +1,6 @@
+.DS_Store
+.terraform
+.terraform.lock.hcl
+.vscode
+*.zip
+lambda/python_lambda_layer/package

@@ -1,0 +1,2 @@
+google_auth_key = "/path/to/your-gcp-service-account-key.json"
+google_user     = "admin@example.com"

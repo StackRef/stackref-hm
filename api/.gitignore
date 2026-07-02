@@ -1,0 +1,15 @@
+.idea/
+venv/
+vendor/
+**/payload/*zip
+**/payload.zip
+test_main.py
+test_data.json
+.DS_Store
+__pycache__
+dist
+*.egg-info
+package/
+.dccache
+.infracost
+.vscode

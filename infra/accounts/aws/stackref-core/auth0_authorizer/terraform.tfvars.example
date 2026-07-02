@@ -1,0 +1,10 @@
+sr_authorizer_version = "0.2.1"
+aws_region            = "us-east-1"
+environment           = "dev"
+sr_logging_level      = "DEBUG"
+lambda_src_dir        = "lambda-python/src"
+lambda_payload_dir    = "lambda-python/payload"
+sr_auth0_domain       = "auth.acme.example.com"
+sr_auth0_client_id    = "YOUR_AUTH0_CLIENT_ID"
+sr_auth0_be_audience  = "https://be.acme.example.com"
+#sr_auth0_client_ids   = ["YOUR_AUTH0_CLIENT_ID", "YOUR_AUTH0_CLIENT_ID", "YOUR_AUTH0_CLIENT_ID"]

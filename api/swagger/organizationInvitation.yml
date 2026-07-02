@@ -1,0 +1,304 @@
+get:
+  summary: Retrieve all invitations for an Organization
+  tags:
+    - organization
+  description: Returns details of all existing Organization invitations of supplied `orgnization_uuid`
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+    - name: organization_uuid
+      in: query
+      description: Organization UUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                organization_invitation_uuid:
+                  type: string
+                  format: uuid
+                invitation_email:
+                  type: string
+                  format: email
+                invitation_code:
+                  type: string
+                creator_user_uuid:
+                  type: string
+                  format: uuid
+                claiming_user_uuid:
+                  type: string
+                  format: uuid
+                organization_invitation_status_name:
+                  type: string
+                  example: Ready|Claimed|On Hold
+                ts_claimed:
+                  type: string
+                  format: date-time
+                ts_expires:
+                  type: string
+                  format: date-time
+                invitation_expired:
+                  type: boolean
+                ts_created:
+                  type: string
+                  format: date-time
+    '204':
+      description: No results
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for GET /organizationInvitation
+post:
+  summary: Claim or Create an Organization invitation
+  tags:
+    - organization
+  description: Returns details of a newly-created Organization invitation
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: x-sr-application
+      in: header
+      description: What application/version is calling the API
+      required: true
+      style: simple
+      schema:
+        type: string
+        default: SR/Swagger
+  requestBody:
+    description: |
+      **Claim or Create an Organization invitation**
+
+      action: `create`, `claim`, or `upload`
+
+      `create` action requires: `organization_uuid`, `creator_user_uuid`, `invitation_email`
+
+      `claim` action requires: `claiming_user_uuid`, `organization_domain`, `invitation_code`
+
+      `upload` action requires: `organization_invitation_uuid`, `claiming_user_uuid`, `invitation_file_has_header`, `invitation_file_data`
+    required: true
+    content:
+      application/json:
+        schema:
+          oneOf:
+              - $ref: '#/components/schemas/organizationInvitation_claimInvitationPayload'
+              - $ref: '#/components/schemas/organizationInvitation_uploadInvitationsHeaderPayload'
+              - $ref: '#/components/schemas/organizationInvitation_uploadInvitationsNoHeaderPayload'
+  responses:
+    '200':
+      description: Successful operation
+      headers:
+        Content-Type:
+          schema:
+            type: string
+          description: The MIME type of the payload
+        Content-Length:
+          schema:
+            type: number
+          description: Byte length of the payload
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/organizationInvitation_claimInvitationResponse'
+              - $ref: '#/components/schemas/organizationInvitation_createInvitationResponse'
+              - $ref: '#/components/schemas/organizationInvitation_uploadInvitationsResponse'
+    '403':
+      description: Not authorized
+    default:
+      description: Default response for POST /organizationInvitation
+components:
+  schemas:
+    organizationInvitation_createInvitationPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: create
+              example: create
+            organization_uuid:
+              type: string
+              format: uuid
+            creator_user_uuid:
+              type: string
+              format: uuid
+            invitation_email:
+              type: string
+              format: email
+    organizationInvitation_claimInvitationPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: claim
+              example: claim
+            organization_uuid:
+              type: string
+              format: uuid
+            organization_domain:
+              type: string
+            organization_invitation_uuid:
+              type: string
+              format: uuid
+            invitation_code:
+              type: string
+            claiming_user_uuid:
+              type: string
+              format: uuid
+    organizationInvitation_uploadInvitationsHeaderPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: upload
+              example: upload
+            organization_uuid:
+              type: string
+              format: uuid
+            creator_user_uuid:
+              type: string
+              format: uuid
+            invitation_file_has_header:
+              type: boolean
+              default: true
+              example: true
+            invitation_file_data:
+              type: array
+              items:
+                type: object
+                properties:
+                  column_name:
+                    type: string
+                  column_value:
+                    type: string
+    organizationInvitation_uploadInvitationsNoHeaderPayload:
+      type: object
+      properties:
+        invitation:
+          type: object
+          properties:
+            action:
+              type: string
+              default: upload
+              example: upload
+            organization_uuid:
+              type: string
+              format: uuid
+            creator_user_uuid:
+              type: string
+              format: uuid
+            invitation_file_has_header:
+              type: boolean
+              default: false
+              example: false
+            invitation_file_data:
+              type: array
+              items:
+                type: array
+                items:
+                  type: string
+    organizationInvitation_claimInvitationResponse:
+        type: object
+        properties:
+          status_code:
+            type: number
+            format: int32
+            example: 200
+          organization_invitation_uuid:
+            type: string
+            format: uuid
+    organizationInvitation_createInvitationResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          invitation:
+            type: object
+            properties:
+              status_code:
+                type: number
+                format: int32
+                example: 200
+              organization_invitation_uuid:
+                type: string
+                format: uuid
+              invitation_code:
+                type: string
+              organization_uuid:
+                type: string
+                format: uuid
+              invitation_email:
+                type: string
+                format: email
+              organization_invitation_status_name:
+                type: string
+              ts_expires:
+                type: string
+                format: date-time
+    organizationInvitation_uploadInvitationsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          invitations:
+            type: array
+            items:
+              type: object
+              properties:
+                invitation:
+                  type: object
+                  properties:
+                    status_code:
+                      type: number
+                      format: int32
+                      example: 200
+                    organization_invitation_uuid:
+                      type: string
+                      format: uuid
+                    invitation_code:
+                      type: string
+                    organization_uuid:
+                      type: string
+                      format: uuid
+                    invitation_email:
+                      type: string
+                      format: email
+                    organization_invitation_status_name:
+                      type: string
+                    ts_expires:
+                      type: string
+                      format: date-time
